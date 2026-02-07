@@ -1,9 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
-import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
 import { Header } from '@/components/Header'
-import { YearSelector } from '@/components/YearSelector'
 import { OverviewCards } from '@/components/OverviewCards'
 import { ExpenseTable } from '@/components/ExpenseTable'
 import { AddExpenseDialog } from '@/components/AddExpenseDialog'
@@ -12,7 +10,6 @@ import { CategoryComparisonChart } from '@/components/CategoryComparisonChart'
 import { MonthlyTrendChart } from '@/components/MonthlyTrendChart'
 import { CsvImportDialog } from '@/components/CsvImportDialog'
 import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useApartments } from '@/hooks/useApartments'
@@ -174,12 +171,16 @@ function App() {
         apartments={apartments}
         selectedApartmentId={selectedApartmentId}
         onSelectApartment={setSelectedApartmentId}
+        years={years}
+        selectedYear={selectedYear}
+        onSelectYear={setSelectedYear}
+        onAdd={handleOpenAdd}
         onImport={() => setImportDialogOpen(true)}
         onExport={handleExport}
         onSettings={() => setCategoriesDialogOpen(true)}
       />
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="mx-auto px-4 py-6 space-y-6 max-w-[1000px]">
         {/* Overview Section */}
         {isLoading ? (
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -207,35 +208,19 @@ function App() {
           </div>
         )}
 
-        {/* Expense Table Section */}
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-4">
-            {years.length > 0 && (
-              <YearSelector
-                years={years}
-                selected={selectedYear}
-                onSelect={setSelectedYear}
-              />
-            )}
-            <Button onClick={handleOpenAdd} size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              Добави
-            </Button>
-          </div>
-
-          {isLoading ? (
-            <Skeleton className="h-[400px] rounded-xl" />
-          ) : (
-            <ExpenseTable
-              categories={currentCategories}
-              monthRows={monthRows}
-              columnTotals={columnTotals}
-              grandTotal={grandTotal}
-              onEditRow={handleEditRow}
-              onDeleteRow={handleDeleteRow}
-            />
-          )}
-        </div>
+        {/* Expense Table */}
+        {isLoading ? (
+          <Skeleton className="h-[400px] rounded-xl" />
+        ) : (
+          <ExpenseTable
+            categories={currentCategories}
+            monthRows={monthRows}
+            columnTotals={columnTotals}
+            grandTotal={grandTotal}
+            onEditRow={handleEditRow}
+            onDeleteRow={handleDeleteRow}
+          />
+        )}
       </main>
 
       {/* Dialogs */}

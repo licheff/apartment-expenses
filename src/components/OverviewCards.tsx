@@ -10,7 +10,7 @@ export function OverviewCards({ summary }: OverviewCardsProps) {
   return (
     <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-6">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Общо за {summary.year}
           </CardTitle>
@@ -20,7 +20,7 @@ export function OverviewCards({ summary }: OverviewCardsProps) {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-6">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Средно/месец
           </CardTitle>
@@ -36,8 +36,8 @@ export function OverviewCards({ summary }: OverviewCardsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-bold tabular-nums">{formatCurrency(summary.highestMonth.total)}</p>
           <p className="text-xs text-muted-foreground">{summary.highestMonth.monthName}</p>
+          <p className="text-2xl font-bold tabular-nums">{formatCurrency(summary.highestMonth.total)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -47,8 +47,8 @@ export function OverviewCards({ summary }: OverviewCardsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-bold tabular-nums">{formatCurrency(summary.lowestMonth.total)}</p>
           <p className="text-xs text-muted-foreground">{summary.lowestMonth.monthName}</p>
+          <p className="text-2xl font-bold tabular-nums">{formatCurrency(summary.lowestMonth.total)}</p>
         </CardContent>
       </Card>
     </div>
