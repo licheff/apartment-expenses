@@ -10,51 +10,65 @@ import {
 } from '@/components/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { MonthRow } from '@/types'
+import type { YearMonthlyTotals } from '@/hooks/useAllYearsMonthlyTotals'
 import { MONTH_NAMES_SHORT } from '@/lib/constants'
+
+// Palette for year lines – current year is always the boldest
+const YEAR_COLORS = [
+  '#6b7280', // gray-500
+  '#a3a3a3', // neutral-400
+  '#d4d4d4', // neutral-300
+  '#c4b5fd', // violet-300
+  '#93c5fd', // blue-300
+  '#86efac', // green-300
+  '#fca5a5', // red-300
+  '#fdba74', // orange-300
+]
 
 interface MonthlyTrendChartProps {
   currentYear: number
   currentMonthRows: MonthRow[]
-  previousYear?: number
-  previousMonthRows?: MonthRow[]
+  otherYearsData: YearMonthlyTotals[]
 }
 
 export function MonthlyTrendChart({
   currentYear,
   currentMonthRows,
-  previousYear,
-  previousMonthRows,
+  otherYearsData,
 }: MonthlyTrendChartProps) {
+  // Build sorted list: current year first, then other years descending
+  const allYears = useMemo(() => {
+    const others = otherYearsData.map(d => d.year).sort((a, b) => b - a)
+    return [currentYear, ...others]
+  }, [currentYear, otherYearsData])
+
   const chartConfig = useMemo<ChartConfig>(() => {
-    const config: ChartConfig = {
-      current: {
-        label: String(currentYear),
-        color: '#404040',
-      },
-    }
-    if (previousYear) {
-      config.previous = {
-        label: String(previousYear),
-        color: '#b0b0b0',
+    const config: ChartConfig = {}
+    for (let i = 0; i < allYears.length; i++) {
+      const year = allYears[i]
+      config[`y${year}`] = {
+        label: String(year),
+        color: i === 0 ? '#404040' : YEAR_COLORS[(i - 1) % YEAR_COLORS.length],
       }
     }
     return config
-  }, [currentYear, previousYear])
+  }, [allYears])
 
   const chartData = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => {
       const month = i + 1
-      const currentTotal = currentMonthRows[i]?.total ?? 0
       const entry: Record<string, string | number> = {
         month: MONTH_NAMES_SHORT[month],
-        current: currentTotal,
       }
-      if (previousMonthRows) {
-        entry.previous = previousMonthRows[i]?.total ?? 0
+      // Current year
+      entry[`y${currentYear}`] = currentMonthRows[i]?.total ?? 0
+      // Other years
+      for (const yd of otherYearsData) {
+        entry[`y${yd.year}`] = yd.monthTotals[i] ?? 0
       }
       return entry
     })
-  }, [currentMonthRows, previousMonthRows])
+  }, [currentYear, currentMonthRows, otherYearsData])
 
   return (
     <Card className="min-w-0">
@@ -69,25 +83,18 @@ export function MonthlyTrendChart({
             <YAxis tickLine={false} axisLine={false} tickFormatter={v => `${v}`} />
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent />} />
-            <Line
-              type="monotone"
-              dataKey="current"
-              stroke="var(--color-current)"
-              strokeWidth={2}
-              dot={{ r: 3, fill: 'var(--color-current)' }}
-              activeDot={{ r: 5 }}
-            />
-            {previousMonthRows && (
+            {allYears.map((year, i) => (
               <Line
+                key={year}
                 type="monotone"
-                dataKey="previous"
-                stroke="var(--color-previous)"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                dot={{ r: 3, fill: 'var(--color-previous)' }}
-                activeDot={{ r: 5 }}
+                dataKey={`y${year}`}
+                stroke={`var(--color-y${year})`}
+                strokeWidth={i === 0 ? 2 : 1.5}
+                strokeDasharray={i === 0 ? undefined : '5 5'}
+                dot={{ r: i === 0 ? 3 : 2, fill: `var(--color-y${year})` }}
+                activeDot={{ r: i === 0 ? 5 : 4 }}
               />
-            )}
+            ))}
           </LineChart>
         </ChartContainer>
       </CardContent>

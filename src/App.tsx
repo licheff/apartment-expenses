@@ -20,6 +20,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useExpenseSummary } from '@/hooks/useExpenseSummary'
 import { useAvailableYears } from '@/hooks/useAvailableYears'
+import { useAllYearsMonthlyTotals } from '@/hooks/useAllYearsMonthlyTotals'
 import { useTheme } from '@/hooks/useTheme'
 import { exportToCsv } from '@/lib/csv-exporter'
 import { supabase } from '@/lib/supabase'
@@ -121,6 +122,9 @@ function AuthenticatedApp({
     const filled = prevMonthRows.filter(r => r.total > 0)
     return filled.length > 0 ? prevYearTotal / filled.length : 0
   }, [prevMonthRows, prevYearTotal])
+
+  // All years data for the trend chart
+  const { allYearsData } = useAllYearsMonthlyTotals(currentCategories, selectedYear, years)
 
   // Handlers
   const handleAddExpense = useCallback(
@@ -277,8 +281,7 @@ function AuthenticatedApp({
             <MonthlyTrendChart
               currentYear={selectedYear}
               currentMonthRows={monthRows}
-              previousYear={hasPrevData ? previousYear : undefined}
-              previousMonthRows={hasPrevData ? prevMonthRows : undefined}
+              otherYearsData={allYearsData}
             />
           </div>
         )}
