@@ -63,11 +63,11 @@ export function CategoryComparisonChart({ categories, monthRows }: CategoryCompa
   }, [monthRows, categories])
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Разходи по категории</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-hidden">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart data={chartData}>
             <CartesianGrid vertical={false} />

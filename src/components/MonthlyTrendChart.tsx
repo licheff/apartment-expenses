@@ -57,11 +57,11 @@ export function MonthlyTrendChart({
   }, [currentMonthRows, previousMonthRows])
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Месечна тенденция</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-hidden">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <LineChart data={chartData}>
             <CartesianGrid vertical={false} />

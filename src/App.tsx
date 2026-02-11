@@ -1,7 +1,10 @@
 import { useState, useCallback, useMemo } from 'react'
+import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
 import { Header } from '@/components/Header'
+import { LoginPage } from '@/components/LoginPage'
+import { Button } from '@/components/ui/button'
 import { OverviewCards } from '@/components/OverviewCards'
 import { ExpenseTable } from '@/components/ExpenseTable'
 import { AddExpenseDialog } from '@/components/AddExpenseDialog'
@@ -13,14 +16,54 @@ import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useApartments } from '@/hooks/useApartments'
+import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useExpenseSummary } from '@/hooks/useExpenseSummary'
 import { useAvailableYears } from '@/hooks/useAvailableYears'
+import { useTheme } from '@/hooks/useTheme'
 import { exportToCsv } from '@/lib/csv-exporter'
 import { supabase } from '@/lib/supabase'
 import type { MonthRow } from '@/types'
+import type { Theme } from '@/hooks/useTheme'
 
 function App() {
+  const { session, loading: authLoading, signIn, signOut } = useAuth()
+  const { theme, setTheme } = useTheme()
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Skeleton className="h-8 w-32 rounded" />
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <>
+        <LoginPage onSignIn={signIn} />
+        <Toaster position="bottom-right" />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <AuthenticatedApp signOut={signOut} theme={theme} setTheme={setTheme} />
+      <Toaster position="bottom-right" />
+    </>
+  )
+}
+
+function AuthenticatedApp({
+  signOut,
+  theme,
+  setTheme,
+}: {
+  signOut: () => Promise<void>
+  theme: Theme
+  setTheme: (t: Theme) => void
+}) {
   const { apartments, categories, loading: aptsLoading, addCategory, deleteCategory } = useApartments()
   const [selectedApartmentId, setSelectedApartmentId] = useState('')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -47,6 +90,7 @@ function App() {
     grandTotal,
     loading: expensesLoading,
     createExpense,
+    createBulkExpenses,
     deleteMonthExpenses,
     bulkUpsert,
     refetch: refetchExpenses,
@@ -68,6 +112,16 @@ function App() {
 
   const hasPrevData = prevMonthRows.some(r => r.total > 0)
 
+  // Previous year totals for overview cards
+  const prevYearTotal = useMemo(
+    () => prevMonthRows.reduce((sum, r) => sum + r.total, 0),
+    [prevMonthRows],
+  )
+  const prevYearAverage = useMemo(() => {
+    const filled = prevMonthRows.filter(r => r.total > 0)
+    return filled.length > 0 ? prevYearTotal / filled.length : 0
+  }, [prevMonthRows, prevYearTotal])
+
   // Handlers
   const handleAddExpense = useCallback(
     async (categoryId: string, month: number, amount: number, year: number) => {
@@ -80,6 +134,20 @@ function App() {
       }
     },
     [createExpense, refetchYears],
+  )
+
+  const handleBulkAddExpense = useCallback(
+    async (rows: { category_id: string; year: number; month: number; amount: number }[]) => {
+      const { error, count } = await createBulkExpenses(rows)
+      if (error) {
+        toast.error('Грешка при запазване')
+      } else {
+        toast.success(`Разходът е добавен за ${count} месеца`)
+        refetchYears()
+      }
+      return { error, count }
+    },
+    [createBulkExpenses, refetchYears],
   )
 
   const handleEditRow = useCallback((month: number) => {
@@ -174,13 +242,15 @@ function App() {
         years={years}
         selectedYear={selectedYear}
         onSelectYear={setSelectedYear}
-        onAdd={handleOpenAdd}
         onImport={() => setImportDialogOpen(true)}
         onExport={handleExport}
         onSettings={() => setCategoriesDialogOpen(true)}
+        theme={theme}
+        onThemeChange={setTheme}
+        onSignOut={signOut}
       />
 
-      <main className="mx-auto px-4 py-6 space-y-6 max-w-[1000px]">
+      <main className="mx-auto px-4 py-6 pb-24 space-y-6 max-w-[1000px]">
         {/* Overview Section */}
         {isLoading ? (
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -189,7 +259,12 @@ function App() {
             ))}
           </div>
         ) : (
-          <OverviewCards summary={summary} />
+          <OverviewCards
+            summary={summary}
+            previousYear={hasPrevData ? previousYear : undefined}
+            previousYearTotal={hasPrevData ? prevYearTotal : undefined}
+            previousYearAverage={hasPrevData ? prevYearAverage : undefined}
+          />
         )}
 
         {/* Charts */}
@@ -223,12 +298,25 @@ function App() {
         )}
       </main>
 
+      {/* Sticky Add button */}
+      <div className="fixed bottom-6 right-6 z-10">
+        <Button
+          size="lg"
+          className="rounded-full shadow-lg h-14 w-14 p-0"
+          onClick={handleOpenAdd}
+          title="Добави разход"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </div>
+
       {/* Dialogs */}
       <AddExpenseDialog
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
         categories={currentCategories}
         onSave={handleAddExpense}
+        onBulkSave={handleBulkAddExpense}
         defaultMonth={addDialogMonth}
         defaultYear={selectedYear}
       />
@@ -257,8 +345,6 @@ function App() {
         onAdd={addCategory}
         onDelete={deleteCategory}
       />
-
-      <Toaster position="bottom-right" />
     </div>
   )
 }

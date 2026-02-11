@@ -86,6 +86,20 @@ export function useExpenses(apartmentId: string, year: number, categories: Categ
     return { error }
   }
 
+  const createBulkExpenses = async (
+    rows: { category_id: string; year: number; month: number; amount: number }[],
+  ) => {
+    const withTimestamp = rows.map(r => ({ ...r, updated_at: new Date().toISOString() }))
+    const { error } = await supabase
+      .from('expenses')
+      .upsert(withTimestamp, { onConflict: 'category_id,year,month' })
+
+    if (!error) {
+      await fetchExpenses()
+    }
+    return { error, count: rows.length }
+  }
+
   const bulkUpsert = async (rows: { category_id: string; year: number; month: number; amount: number }[]) => {
     const withTimestamp = rows.map(r => ({ ...r, updated_at: new Date().toISOString() }))
     const { error } = await supabase
@@ -137,6 +151,7 @@ export function useExpenses(apartmentId: string, year: number, categories: Categ
     grandTotal,
     loading,
     createExpense,
+    createBulkExpenses,
     updateExpense,
     deleteExpense,
     deleteMonthExpenses,

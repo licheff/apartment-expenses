@@ -43,6 +43,16 @@ export const BG_MONTH_TO_NUMBER: Record<string, number> = {
   'Декември': 12,
 }
 
+export const BGN_TO_EUR_RATE = 1.95583
+
+export function convertBgnToEur(bgn: number): number {
+  return bgn / BGN_TO_EUR_RATE
+}
+
+export function convertEurToBgn(eur: number): number {
+  return eur * BGN_TO_EUR_RATE
+}
+
 export function formatCurrency(amount: number): string {
   return `${amount.toFixed(2)} €`
 }
