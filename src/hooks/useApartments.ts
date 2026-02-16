@@ -51,5 +51,26 @@ export function useApartments() {
     return { error }
   }
 
-  return { apartments, categories, loading, refetch: fetchData, addCategory, deleteCategory }
+  const toggleCategoryPaidByMe = async (categoryId: string, paidByMe: boolean) => {
+    const { error } = await supabase
+      .from('categories')
+      .update({ paid_by_me: paidByMe })
+      .eq('id', categoryId)
+    if (!error) await fetchData()
+    return { error }
+  }
+
+  const updateRentAmount = async (apartmentId: string, rentAmount: number | null) => {
+    const { error } = await supabase
+      .from('apartments')
+      .update({ rent_amount: rentAmount })
+      .eq('id', apartmentId)
+    if (!error) await fetchData()
+    return { error }
+  }
+
+  return {
+    apartments, categories, loading, refetch: fetchData,
+    addCategory, deleteCategory, toggleCategoryPaidByMe, updateRentAmount,
+  }
 }

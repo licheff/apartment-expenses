@@ -7,6 +7,7 @@ export function useExpenseSummary(
   columnTotals: Record<string, number>,
   grandTotal: number,
   year: number,
+  yearlyExpensesTotal: number,
 ): YearSummary {
   return useMemo(() => {
     const filledMonths = monthRows.filter(r => r.total > 0)
@@ -36,13 +37,20 @@ export function useExpenseSummary(
       categoryTotals[cat.id] = columnTotals[cat.id] ?? 0
     }
 
+    const myTotal = categories
+      .filter(c => c.paid_by_me)
+      .reduce((sum, c) => sum + (columnTotals[c.id] ?? 0), 0)
+
     return {
       year,
       total: grandTotal,
+      totalWithYearly: grandTotal + yearlyExpensesTotal,
+      myTotal,
       monthlyAverage,
       highestMonth: highest,
       lowestMonth: lowest,
       categoryTotals,
+      yearlyExpensesTotal,
     }
-  }, [monthRows, categories, columnTotals, grandTotal, year])
+  }, [monthRows, categories, columnTotals, grandTotal, year, yearlyExpensesTotal])
 }

@@ -13,6 +13,7 @@ import { CategoryComparisonChart } from '@/components/CategoryComparisonChart'
 import { MonthlyTrendChart } from '@/components/MonthlyTrendChart'
 import { CsvImportDialog } from '@/components/CsvImportDialog'
 import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
+import { YearlyExpensesSection } from '@/components/YearlyExpensesSection'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useApartments } from '@/hooks/useApartments'
@@ -21,6 +22,8 @@ import { useExpenses } from '@/hooks/useExpenses'
 import { useExpenseSummary } from '@/hooks/useExpenseSummary'
 import { useAvailableYears } from '@/hooks/useAvailableYears'
 import { useAllYearsMonthlyTotals } from '@/hooks/useAllYearsMonthlyTotals'
+import { useRentPayments } from '@/hooks/useRentPayments'
+import { useYearlyExpenses } from '@/hooks/useYearlyExpenses'
 import { useTheme } from '@/hooks/useTheme'
 import { exportToCsv } from '@/lib/csv-exporter'
 import { supabase } from '@/lib/supabase'
@@ -65,7 +68,10 @@ function AuthenticatedApp({
   theme: Theme
   setTheme: (t: Theme) => void
 }) {
-  const { apartments, categories, loading: aptsLoading, addCategory, deleteCategory } = useApartments()
+  const {
+    apartments, categories, loading: aptsLoading,
+    addCategory, deleteCategory, toggleCategoryPaidByMe, updateRentAmount,
+  } = useApartments()
   const [selectedApartmentId, setSelectedApartmentId] = useState('')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
@@ -97,12 +103,22 @@ function AuthenticatedApp({
     refetch: refetchExpenses,
   } = useExpenses(selectedApartmentId, selectedYear, currentCategories)
 
+  // Yearly expenses (needed before summary)
+  const {
+    yearlyExpenses,
+    yearlyTotal,
+    createYearlyExpense,
+    updateYearlyExpense,
+    deleteYearlyExpense,
+  } = useYearlyExpenses(selectedApartmentId, selectedYear)
+
   const summary = useExpenseSummary(
     monthRows,
     currentCategories,
     columnTotals,
     grandTotal,
     selectedYear,
+    yearlyTotal,
   )
 
   // Previous year data for trend chart
@@ -125,6 +141,13 @@ function AuthenticatedApp({
 
   // All years data for the trend chart
   const { allYearsData } = useAllYearsMonthlyTotals(currentCategories, selectedYear, years)
+
+  // Rent payments
+  const currentApartment = apartments.find(a => a.id === selectedApartmentId)
+  const { paidMonths, toggleMonth: toggleRentMonth } = useRentPayments(
+    selectedApartmentId,
+    selectedYear,
+  )
 
   // Handlers
   const handleAddExpense = useCallback(
@@ -268,6 +291,9 @@ function AuthenticatedApp({
             previousYear={hasPrevData ? previousYear : undefined}
             previousYearTotal={hasPrevData ? prevYearTotal : undefined}
             previousYearAverage={hasPrevData ? prevYearAverage : undefined}
+            rentAmount={currentApartment?.rent_amount}
+            paidMonths={paidMonths}
+            onToggleRentMonth={toggleRentMonth}
           />
         )}
 
@@ -290,14 +316,24 @@ function AuthenticatedApp({
         {isLoading ? (
           <Skeleton className="h-[400px] rounded-xl" />
         ) : (
-          <ExpenseTable
-            categories={currentCategories}
-            monthRows={monthRows}
-            columnTotals={columnTotals}
-            grandTotal={grandTotal}
-            onEditRow={handleEditRow}
-            onDeleteRow={handleDeleteRow}
-          />
+          <>
+            <ExpenseTable
+              categories={currentCategories}
+              monthRows={monthRows}
+              columnTotals={columnTotals}
+              grandTotal={grandTotal}
+              onEditRow={handleEditRow}
+              onDeleteRow={handleDeleteRow}
+            />
+            <YearlyExpensesSection
+              yearlyExpenses={yearlyExpenses}
+              yearlyTotal={yearlyTotal}
+              year={selectedYear}
+              onCreate={createYearlyExpense}
+              onUpdate={updateYearlyExpense}
+              onDelete={deleteYearlyExpense}
+            />
+          </>
         )}
       </main>
 
@@ -347,6 +383,8 @@ function AuthenticatedApp({
         categories={categories}
         onAdd={addCategory}
         onDelete={deleteCategory}
+        onTogglePaidByMe={toggleCategoryPaidByMe}
+        onUpdateRentAmount={updateRentAmount}
       />
     </div>
   )

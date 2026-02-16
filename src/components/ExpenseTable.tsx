@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import type { Category, MonthRow } from '@/types'
 import { formatCurrency } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
 interface ExpenseTableProps {
   categories: Category[]
@@ -36,8 +37,17 @@ export function ExpenseTable({
           <TableRow>
             <TableHead className="w-[100px]">Месец</TableHead>
             {categories.map(cat => (
-              <TableHead key={cat.id} className="text-right min-w-[100px]">
+              <TableHead
+                key={cat.id}
+                className={cn(
+                  'text-right min-w-[100px]',
+                  !cat.paid_by_me && 'italic text-muted-foreground',
+                )}
+              >
                 {cat.name}
+                {!cat.paid_by_me && (
+                  <span className="text-[10px] block font-normal not-italic">наемател</span>
+                )}
               </TableHead>
             ))}
             <TableHead className="text-right min-w-[100px] font-bold">Общо</TableHead>
@@ -51,7 +61,13 @@ export function ExpenseTable({
               <TableRow key={row.month} className={hasData ? '' : 'text-muted-foreground'}>
                 <TableCell className="font-medium">{row.monthName}</TableCell>
                 {categories.map(cat => (
-                  <TableCell key={cat.id} className="text-right tabular-nums">
+                  <TableCell
+                    key={cat.id}
+                    className={cn(
+                      'text-right tabular-nums',
+                      !cat.paid_by_me && 'text-muted-foreground italic',
+                    )}
+                  >
                     {row.expenses[cat.id] != null
                       ? formatCurrency(row.expenses[cat.id])
                       : '-'}
@@ -92,7 +108,13 @@ export function ExpenseTable({
           <TableRow>
             <TableCell className="font-bold">Общо</TableCell>
             {categories.map(cat => (
-              <TableCell key={cat.id} className="text-right font-bold tabular-nums">
+              <TableCell
+                key={cat.id}
+                className={cn(
+                  'text-right font-bold tabular-nums',
+                  !cat.paid_by_me && 'text-muted-foreground italic font-normal',
+                )}
+              >
                 {formatCurrency(columnTotals[cat.id] ?? 0)}
               </TableCell>
             ))}
