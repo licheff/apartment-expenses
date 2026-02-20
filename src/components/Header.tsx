@@ -54,7 +54,7 @@ export function Header({
       <div className="mx-auto max-w-[1000px] px-4">
         {/* Top row: title + actions */}
         <div className="flex items-center justify-between py-3">
-          <h1 className="text-xl font-bold tracking-tight">Сметки</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Сметки</h1>
           <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

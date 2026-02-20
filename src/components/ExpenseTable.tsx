@@ -1,5 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -20,6 +21,9 @@ interface ExpenseTableProps {
   grandTotal: number
   onEditRow: (month: number) => void
   onDeleteRow: (month: number) => void
+  hasRent?: boolean
+  paidMonths?: number[]
+  onToggleRentMonth?: (month: number) => void
 }
 
 export function ExpenseTable({
@@ -29,6 +33,9 @@ export function ExpenseTable({
   grandTotal,
   onEditRow,
   onDeleteRow,
+  hasRent = false,
+  paidMonths = [],
+  onToggleRentMonth,
 }: ExpenseTableProps) {
   return (
     <div className="overflow-x-auto rounded-md border">
@@ -36,6 +43,9 @@ export function ExpenseTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">Месец</TableHead>
+            {hasRent && (
+              <TableHead className="w-[60px] text-center">Наем</TableHead>
+            )}
             {categories.map(cat => (
               <TableHead
                 key={cat.id}
@@ -57,9 +67,18 @@ export function ExpenseTable({
         <TableBody>
           {monthRows.map(row => {
             const hasData = row.total > 0
+            const isPaid = paidMonths.includes(row.month)
             return (
               <TableRow key={row.month} className={hasData ? '' : 'text-muted-foreground'}>
                 <TableCell className="font-medium">{row.monthName}</TableCell>
+                {hasRent && (
+                  <TableCell className="text-center">
+                    <Checkbox
+                      checked={isPaid}
+                      onCheckedChange={() => onToggleRentMonth?.(row.month)}
+                    />
+                  </TableCell>
+                )}
                 {categories.map(cat => (
                   <TableCell
                     key={cat.id}
@@ -107,6 +126,7 @@ export function ExpenseTable({
         <TableFooter>
           <TableRow>
             <TableCell className="font-bold">Общо</TableCell>
+            {hasRent && <TableCell />}
             {categories.map(cat => (
               <TableCell
                 key={cat.id}

@@ -1,16 +1,16 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
 import { Header } from '@/components/Header'
 import { LoginPage } from '@/components/LoginPage'
 import { Button } from '@/components/ui/button'
-import { OverviewCards } from '@/components/OverviewCards'
+import { YearSummaryStrip } from '@/components/YearSummaryStrip'
+import { MonthIndicator } from '@/components/MonthIndicator'
+import { YearComparisonChart } from '@/components/YearComparisonChart'
 import { ExpenseTable } from '@/components/ExpenseTable'
 import { AddExpenseDialog } from '@/components/AddExpenseDialog'
 import { EditExpenseDialog } from '@/components/EditExpenseDialog'
-import { CategoryComparisonChart } from '@/components/CategoryComparisonChart'
-import { MonthlyTrendChart } from '@/components/MonthlyTrendChart'
 import { CsvImportDialog } from '@/components/CsvImportDialog'
 import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
 import { YearlyExpensesSection } from '@/components/YearlyExpensesSection'
@@ -21,7 +21,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useExpenseSummary } from '@/hooks/useExpenseSummary'
 import { useAvailableYears } from '@/hooks/useAvailableYears'
-import { useAllYearsMonthlyTotals } from '@/hooks/useAllYearsMonthlyTotals'
 import { useRentPayments } from '@/hooks/useRentPayments'
 import { useYearlyExpenses } from '@/hooks/useYearlyExpenses'
 import { useTheme } from '@/hooks/useTheme'
@@ -139,9 +138,6 @@ function AuthenticatedApp({
     return filled.length > 0 ? prevYearTotal / filled.length : 0
   }, [prevMonthRows, prevYearTotal])
 
-  // All years data for the trend chart
-  const { allYearsData } = useAllYearsMonthlyTotals(currentCategories, selectedYear, years)
-
   // Rent payments
   const currentApartment = apartments.find(a => a.id === selectedApartmentId)
   const { paidMonths, toggleMonth: toggleRentMonth } = useRentPayments(
@@ -253,6 +249,22 @@ function AuthenticatedApp({
     setAddDialogOpen(true)
   }, [])
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'a' && !addDialogOpen && !editDialogOpen && !importDialogOpen && !categoriesDialogOpen) {
+        e.preventDefault()
+        handleOpenAdd()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen, categoriesDialogOpen])
+
+  const handleAddMonth = useCallback((month: number) => {
+    setAddDialogMonth(month)
+    setAddDialogOpen(true)
+  }, [])
+
   const editMonthRow: MonthRow | null = useMemo(
     () => (editMonth !== null ? monthRows.find(r => r.month === editMonth) ?? null : null),
     [editMonth, monthRows],
@@ -278,53 +290,34 @@ function AuthenticatedApp({
       />
 
       <main className="mx-auto px-4 py-6 pb-24 space-y-6 max-w-[1000px]">
-        {/* Overview Section */}
+        {/* Summary Strip */}
         {isLoading ? (
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-[100px] rounded-xl" />
-            ))}
-          </div>
+          <Skeleton className="h-[80px] rounded-xl" />
         ) : (
-          <OverviewCards
+          <YearSummaryStrip
             summary={summary}
             previousYear={hasPrevData ? previousYear : undefined}
             previousYearTotal={hasPrevData ? prevYearTotal : undefined}
             previousYearAverage={hasPrevData ? prevYearAverage : undefined}
             rentAmount={currentApartment?.rent_amount}
             paidMonths={paidMonths}
-            onToggleRentMonth={toggleRentMonth}
           />
         )}
 
-        {/* Charts */}
-        {!isLoading && (
-          <div className="grid gap-4 md:grid-cols-2">
-            <CategoryComparisonChart
-              categories={currentCategories}
-              monthRows={monthRows}
-            />
-            <MonthlyTrendChart
-              currentYear={selectedYear}
-              currentMonthRows={monthRows}
-              otherYearsData={allYearsData}
-            />
-          </div>
-        )}
 
-        {/* Expense Table */}
+        {/* Chart + Yearly Expenses side by side */}
         {isLoading ? (
-          <Skeleton className="h-[400px] rounded-xl" />
+          <Skeleton className="h-[320px] rounded-xl" />
         ) : (
-          <>
-            <ExpenseTable
-              categories={currentCategories}
-              monthRows={monthRows}
-              columnTotals={columnTotals}
-              grandTotal={grandTotal}
-              onEditRow={handleEditRow}
-              onDeleteRow={handleDeleteRow}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <YearComparisonChart
+                currentYear={selectedYear}
+                currentMonthRows={monthRows}
+                prevYear={previousYear}
+                prevMonthRows={prevMonthRows}
+              />
+            </div>
             <YearlyExpensesSection
               yearlyExpenses={yearlyExpenses}
               yearlyTotal={yearlyTotal}
@@ -333,7 +326,24 @@ function AuthenticatedApp({
               onUpdate={updateYearlyExpense}
               onDelete={deleteYearlyExpense}
             />
-          </>
+          </div>
+        )}
+
+        {/* Expense Table */}
+        {isLoading ? (
+          <Skeleton className="h-[400px] rounded-xl" />
+        ) : (
+          <ExpenseTable
+            categories={currentCategories}
+            monthRows={monthRows}
+            columnTotals={columnTotals}
+            grandTotal={grandTotal}
+            onEditRow={handleEditRow}
+            onDeleteRow={handleDeleteRow}
+            hasRent={!!currentApartment?.rent_amount}
+            paidMonths={paidMonths}
+            onToggleRentMonth={toggleRentMonth}
+          />
         )}
       </main>
 

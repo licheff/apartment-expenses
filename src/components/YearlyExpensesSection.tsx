@@ -1,8 +1,16 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { YearlyExpense } from '@/types'
 import { formatCurrency, convertBgnToEur } from '@/lib/constants'
@@ -26,184 +34,162 @@ export function YearlyExpensesSection({
   onUpdate,
   onDelete,
 }: YearlyExpensesSectionProps) {
-  const [adding, setAdding] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newAmount, setNewAmount] = useState('')
+  const [dialogMode, setDialogMode] = useState<'add' | 'edit' | null>(null)
+  const [selectedExp, setSelectedExp] = useState<YearlyExpense | null>(null)
+  const [name, setName] = useState('')
+  const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState<Currency>('EUR')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editAmount, setEditAmount] = useState('')
-  const [editCurrency, setEditCurrency] = useState<Currency>('EUR')
+
+  const openAdd = () => {
+    setName('')
+    setAmount('')
+    setCurrency('EUR')
+    setDialogMode('add')
+  }
+
+  const openEdit = (exp: YearlyExpense) => {
+    setSelectedExp(exp)
+    setAmount(String(exp.amount))
+    setCurrency('EUR')
+    setDialogMode('edit')
+  }
+
+  const closeDialog = () => {
+    setDialogMode(null)
+    setSelectedExp(null)
+    setName('')
+    setAmount('')
+    setCurrency('EUR')
+  }
 
   const handleAdd = async () => {
-    if (!newName.trim() || !newAmount) return
-    const raw = Number(newAmount)
-    const eur = currency === 'BGN' ? convertBgnToEur(raw) : raw
-    await onCreate(newName.trim(), eur)
-    setNewName('')
-    setNewAmount('')
-    setCurrency('EUR')
-    setAdding(false)
+    if (!name.trim() || !amount) return
+    const eur = currency === 'BGN' ? convertBgnToEur(Number(amount)) : Number(amount)
+    await onCreate(name.trim(), eur)
+    closeDialog()
   }
 
-  const startEdit = (exp: YearlyExpense) => {
-    setEditingId(exp.id)
-    setEditAmount(String(exp.amount))
-    setEditCurrency('EUR')
+  const handleEdit = async () => {
+    if (!selectedExp || !amount) return
+    const eur = currency === 'BGN' ? convertBgnToEur(Number(amount)) : Number(amount)
+    await onUpdate(selectedExp.id, eur)
+    closeDialog()
   }
 
-  const handleEditSave = async () => {
-    if (!editingId || !editAmount) return
-    const raw = Number(editAmount)
-    const eur = editCurrency === 'BGN' ? convertBgnToEur(raw) : raw
-    await onUpdate(editingId, eur)
-    setEditingId(null)
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditAmount('')
-    setEditCurrency('EUR')
-  }
-
-  const cancelAdd = () => {
-    setAdding(false)
-    setNewName('')
-    setNewAmount('')
-    setCurrency('EUR')
+  const handleDelete = async () => {
+    if (!selectedExp) return
+    await onDelete(selectedExp.id)
+    closeDialog()
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
+    <Card className="h-full py-0">
+      <CardHeader className="px-4 pt-4 pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">
-            Годишни разходи ({year})
+          <CardTitle className="text-sm font-normal text-muted-foreground">
+            Годишни разходи
           </CardTitle>
-          {!adding && (
-            <Button variant="ghost" size="sm" onClick={() => setAdding(true)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Добави
-            </Button>
-          )}
+          <Button variant="ghost" size="sm" onClick={openAdd}>
+            <Plus className="h-4 w-4 mr-1" />
+            Добави
+          </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        {yearlyExpenses.length === 0 && !adding && (
+
+      <CardContent className="px-4 pb-0 flex-1">
+        {yearlyExpenses.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-2">
             Няма годишни разходи
           </p>
         )}
-
         <div className="space-y-2">
           {yearlyExpenses.map(exp => (
-            <div
+            <button
               key={exp.id}
-              className="flex items-center justify-between rounded-md border px-3 py-2"
+              type="button"
+              onClick={() => openEdit(exp)}
+              className="w-full flex items-center justify-between rounded-md border border-input bg-background px-3 py-2.5 text-left hover:bg-accent transition-colors cursor-pointer"
             >
               <span className="text-sm">{exp.name}</span>
-              {editingId === exp.id ? (
-                <div className="flex items-center gap-2">
-                  <CurrencyToggle value={editCurrency} onChange={setEditCurrency} />
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    className="w-24 h-8 text-sm"
-                    value={editAmount}
-                    onChange={e => setEditAmount(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') handleEditSave()
-                      if (e.key === 'Escape') cancelEdit()
-                    }}
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={handleEditSave}
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={cancelEdit}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium tabular-nums">
-                    {formatCurrency(Number(exp.amount))}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => startEdit(exp)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                    onClick={() => onDelete(exp.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+              <span className="text-sm tabular-nums">{formatCurrency(Number(exp.amount))}</span>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+
+      {yearlyExpenses.length > 0 ? (
+        <div className="px-4 pt-2 pb-4 mt-3 border-t flex items-center justify-between">
+          <span className="text-sm font-normal">Общо годишни</span>
+          <span className="text-sm font-bold tabular-nums text-primary">
+            {formatCurrency(yearlyTotal)}
+          </span>
+        </div>
+      ) : (
+        <div className="pb-4" />
+      )}
+
+      <Dialog open={dialogMode !== null} onOpenChange={open => !open && closeDialog()}>
+        <DialogContent className="sm:max-w-[360px]">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogMode === 'add'
+                ? `Годишен разход (${year})`
+                : selectedExp?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            {dialogMode === 'add' && (
+              <div className="grid gap-2">
+                <Label>Наименование</Label>
+                <Input
+                  placeholder="напр. Данък"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                  autoFocus
+                />
+              </div>
+            )}
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label>Сума</Label>
+                <CurrencyToggle value={currency} onChange={setCurrency} />
+              </div>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') dialogMode === 'add' ? handleAdd() : handleEdit()
+                }}
+                autoFocus={dialogMode === 'edit'}
+              />
+              {currency === 'BGN' && amount && (
+                <p className="text-xs text-muted-foreground">
+                  ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
+                </p>
               )}
             </div>
-          ))}
-
-          {adding && (
-            <div className="rounded-md border px-3 py-2 space-y-2">
-              <Input
-                placeholder="Име (напр. Данък)"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                className="h-8 text-sm"
-                autoFocus
-              />
-              <div className="flex items-center gap-2">
-                <CurrencyToggle value={currency} onChange={setCurrency} />
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  className="w-24 h-8 text-sm"
-                  value={newAmount}
-                  onChange={e => setNewAmount(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleAdd()
-                    if (e.key === 'Escape') cancelAdd()
-                  }}
-                />
-                <Button size="sm" className="h-8" onClick={handleAdd} disabled={!newName.trim() || !newAmount}>
-                  Запази
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8" onClick={cancelAdd}>
-                  Отказ
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {yearlyExpenses.length > 0 && (
-          <div className="flex justify-between pt-3 mt-3 border-t">
-            <span className="text-sm font-bold">Общо годишни</span>
-            <span className="text-sm font-bold tabular-nums">
-              {formatCurrency(yearlyTotal)}
-            </span>
           </div>
-        )}
-      </CardContent>
+          <DialogFooter>
+            {dialogMode === 'edit' && (
+              <Button variant="destructive" onClick={handleDelete} className="mr-auto">
+                Изтрий
+              </Button>
+            )}
+            <Button variant="outline" onClick={closeDialog}>Отказ</Button>
+            <Button
+              onClick={dialogMode === 'add' ? handleAdd : handleEdit}
+              disabled={dialogMode === 'add' ? !name.trim() || !amount : !amount}
+            >
+              Запази
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }
