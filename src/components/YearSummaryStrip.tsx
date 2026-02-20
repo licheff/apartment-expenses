@@ -54,9 +54,7 @@ export function YearSummaryStrip({
   const hasPrev =
     previousYear != null && previousYearTotal != null && previousYearTotal > 0
   const hasRent = rentAmount != null && rentAmount > 0
-  const hasNotMyExpenses = summary.myTotal !== summary.total
   const totalCollected = hasRent ? paidMonths.length * rentAmount : 0
-  const balance = hasRent ? totalCollected - summary.totalWithYearly : 0
 
   return (
     <div
@@ -133,18 +131,6 @@ export function YearSummaryStrip({
                 {paidMonths.length} от 12 платени
               </p>
             </div>
-            {/* <div className="border-t pt-2">
-              <p className="text-sm text-muted-foreground">Баланс</p>
-              <p
-                className={cn(
-                  'text-lg font-semibold tabular-nums leading-tight',
-                  balance >= 0 ? 'text-green-600' : 'text-red-500',
-                )}
-              >
-                {balance >= 0 ? '+' : ''}
-                {formatCurrency(balance)}
-              </p>
-            </div> */}
           </CardContent>
         </Card>
       )}
