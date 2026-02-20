@@ -6,7 +6,6 @@ import { Header } from '@/components/Header'
 import { LoginPage } from '@/components/LoginPage'
 import { Button } from '@/components/ui/button'
 import { YearSummaryStrip } from '@/components/YearSummaryStrip'
-import { MonthIndicator } from '@/components/MonthIndicator'
 import { YearComparisonChart } from '@/components/YearComparisonChart'
 import { ExpenseTable } from '@/components/ExpenseTable'
 import { AddExpenseDialog } from '@/components/AddExpenseDialog'
@@ -259,11 +258,6 @@ function AuthenticatedApp({
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen, categoriesDialogOpen])
-
-  const handleAddMonth = useCallback((month: number) => {
-    setAddDialogMonth(month)
-    setAddDialogOpen(true)
-  }, [])
 
   const editMonthRow: MonthRow | null = useMemo(
     () => (editMonth !== null ? monthRows.find(r => r.month === editMonth) ?? null : null),
