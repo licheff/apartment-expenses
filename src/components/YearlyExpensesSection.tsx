@@ -18,7 +18,6 @@ type Currency = 'EUR' | 'BGN'
 interface YearlyExpensesSectionProps {
   yearlyExpenses: YearlyExpense[]
   yearlyTotal: number
-  year: number
   onCreate: (name: string, amount: number) => Promise<{ error: unknown }>
   onUpdate: (id: string, amount: number) => Promise<{ error: unknown }>
   onDelete: (id: string) => Promise<{ error: unknown }>
@@ -27,7 +26,6 @@ interface YearlyExpensesSectionProps {
 export function YearlyExpensesSection({
   yearlyExpenses,
   yearlyTotal,
-  year,
   onCreate,
   onUpdate,
   onDelete,

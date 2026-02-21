@@ -315,7 +315,6 @@ function AuthenticatedApp({
             <YearlyExpensesSection
               yearlyExpenses={yearlyExpenses}
               yearlyTotal={yearlyTotal}
-              year={selectedYear}
               onCreate={createYearlyExpense}
               onUpdate={updateYearlyExpense}
               onDelete={deleteYearlyExpense}
