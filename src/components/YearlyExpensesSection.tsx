@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { YearlyExpense } from '@/types'
-import { formatCurrency, convertBgnToEur } from '@/lib/constants'
+import { formatCurrency, convertBgnToEur, formatAmountInput } from '@/lib/constants'
 
 type Currency = 'EUR' | 'BGN'
 
@@ -111,7 +111,8 @@ export function YearlyExpensesSection({
   }
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
-  const amountFontSize = amount.length > 9 ? 24 : amount.length > 6 ? 32 : 40
+  const formatted = formatAmountInput(amount)
+  const amountFontSize = formatted.length > 9 ? 24 : formatted.length > 6 ? 32 : 40
 
   return (
     <Card className="h-full py-0">
@@ -184,7 +185,7 @@ export function YearlyExpensesSection({
                     style={{ fontSize: amountFontSize }}
                     aria-hidden="true"
                   >
-                    {exitChar ? amount + exitChar : (amount || '0')}
+                    {exitChar ? formatted + exitChar : (formatted || '0')}
                   </span>
                   <div
                     className="absolute inset-0 flex items-center font-bold tabular-nums leading-none pointer-events-none select-none overflow-hidden"
@@ -192,10 +193,10 @@ export function YearlyExpensesSection({
                   >
                     {!amount && !exitChar ? '0' : (
                       <>
-                        {amount.slice(0, -1)}
+                        {formatted.slice(0, -1)}
                         {amount && (
                           <span key={animKey} className="inline-block animate-in slide-in-from-bottom-3 fade-in-0 duration-150">
-                            {amount.slice(-1)}
+                            {formatted.slice(-1)}
                           </span>
                         )}
                         {exitChar && (

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category } from '@/types'
-import { MONTH_NAMES, convertBgnToEur } from '@/lib/constants'
+import { MONTH_NAMES, convertBgnToEur, formatAmountInput } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 
 type Currency = 'EUR' | 'BGN'
@@ -169,7 +169,8 @@ export function AddExpenseDialog({
   const willSaveCount = allMonths ? 12 - skippedCount : 1
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
-  const amountFontSize = amount.length > 9 ? 24 : amount.length > 6 ? 32 : 40
+  const formatted = formatAmountInput(amount)
+  const amountFontSize = formatted.length > 9 ? 24 : formatted.length > 6 ? 32 : 40
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -197,7 +198,7 @@ export function AddExpenseDialog({
                   style={{ fontSize: amountFontSize }}
                   aria-hidden="true"
                 >
-                  {exitChar ? amount + exitChar : (amount || '0')}
+                  {exitChar ? formatted + exitChar : (formatted || '0')}
                 </span>
                 {/* Animated display */}
                 <div
@@ -206,10 +207,10 @@ export function AddExpenseDialog({
                 >
                   {!amount && !exitChar ? '0' : (
                     <>
-                      {amount.slice(0, -1)}
+                      {formatted.slice(0, -1)}
                       {amount && (
                         <span key={animKey} className="inline-block animate-in slide-in-from-bottom-3 fade-in-0 duration-150">
-                          {amount.slice(-1)}
+                          {formatted.slice(-1)}
                         </span>
                       )}
                       {exitChar && (

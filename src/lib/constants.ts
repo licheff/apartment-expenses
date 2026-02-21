@@ -53,10 +53,22 @@ export function convertEurToBgn(eur: number): number {
   return eur * BGN_TO_EUR_RATE
 }
 
+export function formatAmountInput(raw: string): string {
+  if (!raw) return ''
+  const [intPart, decPart] = raw.split('.')
+  const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0')
+  return decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt
+}
+
+function withThousands(n: string): string {
+  return n.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0')
+}
+
 export function formatCurrency(amount: number): string {
-  return `${amount.toFixed(2)} €`
+  const [int, dec] = amount.toFixed(2).split('.')
+  return `${withThousands(int)}.${dec} €`
 }
 
 export function formatCurrencyShort(amount: number): string {
-  return `${amount.toFixed(0)} €`
+  return `${withThousands(Math.round(amount).toString())} €`
 }
