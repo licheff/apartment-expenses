@@ -2777,6 +2777,81 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "type": "frame",
+                  "id": "trzWw",
+                  "name": "Checkbox/Checked",
+                  "reusable": true,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1
+                  },
+                  "gap": 8,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "brkN8",
+                      "name": "Checkbox",
+                      "width": 16,
+                      "height": 16,
+                      "fill": "$--primary-foreground",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--input"
+                      },
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "GDlGe",
+                          "enabled": false,
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "check",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--primary-foreground"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VaDeT",
+                      "name": "Label Text",
+                      "fill": {
+                        "type": "color",
+                        "color": "$--white",
+                        "enabled": false
+                      },
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "5egcl",
+                          "name": "Label Text",
+                          "fill": "$--foreground",
+                          "content": "Приложи за всички месеци",
+                          "lineHeight": 1.4285714285714286,
+                          "textAlign": "center",
+                          "textAlignVertical": "middle",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -2878,9 +2953,1581 @@
     },
     {
       "type": "frame",
+      "id": "7C012",
+      "x": 2625,
+      "y": 300,
+      "name": "Frame 3",
+      "theme": {
+        "Mode": "Dark"
+      },
+      "width": "fit_content(1440)",
+      "height": "fit_content(752.3066139208455)",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "JLird",
+          "x": 0,
+          "y": 0,
+          "name": "01",
+          "theme": {
+            "Mode": "Dark"
+          },
+          "clip": true,
+          "width": 1440,
+          "fill": "$--background",
+          "layout": "vertical",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "MMw98",
+              "name": "Header",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                8,
+                0,
+                12,
+                0
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "5C2be",
+                  "name": "Title",
+                  "width": 1000,
+                  "padding": [
+                    4,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bJaMi",
+                      "name": "Label Selected",
+                      "fill": "$--foreground",
+                      "content": "Сметки",
+                      "lineHeight": 1.4285714285714286,
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qaLpy",
+                      "name": "Frame 1",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "G424v",
+                          "name": "plus",
+                          "width": 24,
+                          "height": 24,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "OkzWg",
+                              "x": 2,
+                              "y": 2,
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "moon-star",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "asRu2",
+                          "name": "plus",
+                          "width": 24,
+                          "height": 24,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "iNKGA",
+                              "x": 2,
+                              "y": 2,
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "settings",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "12Ega",
+                          "name": "plus",
+                          "width": 24,
+                          "height": 24,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Eq5aL",
+                              "x": 2,
+                              "y": 2,
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "log-in",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BZK93",
+                  "name": "Main",
+                  "width": 1000,
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UcAC7",
+                      "name": "Tabs",
+                      "clip": true,
+                      "height": 40,
+                      "fill": "$--secondary",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "gap": 8,
+                      "padding": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "oqdyy",
+                          "name": "Tab Item/Active",
+                          "fill": "$--background",
+                          "cornerRadius": 2,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "effect": {
+                            "type": "shadow",
+                            "shadowType": "outer",
+                            "color": "#0000000d",
+                            "offset": {
+                              "x": 0,
+                              "y": 1
+                            },
+                            "blur": 1.75
+                          },
+                          "gap": 8,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sZavJ",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "142",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "8Zr68",
+                          "name": "Tab Item/Inactive",
+                          "cornerRadius": 2,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Ltuxm",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Драгалевци",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JVFXH",
+                      "name": "Select Group/Filled",
+                      "rotation": -0.13948009468075886,
+                      "width": 126,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "vCzDQ",
+                          "name": "Label Text",
+                          "enabled": false,
+                          "width": "fill_container",
+                          "fill": {
+                            "type": "color",
+                            "color": "$--white",
+                            "enabled": false
+                          },
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qjkwQ",
+                              "name": "Label Text",
+                              "fill": "$--foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Label Text",
+                              "lineHeight": 1.4285714285714286,
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "4zhT2",
+                          "name": "Select Trigger",
+                          "width": "fill_container",
+                          "fill": "$--background",
+                          "cornerRadius": 6,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "$--input"
+                          },
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ZMrBR",
+                              "name": "Select option",
+                              "fill": "$--foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "2026",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "ImlMs",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "chevron-down",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "3bdnu",
+              "name": "Content",
+              "width": 1000,
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                16,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "z6CGr",
+                  "name": "Overview cards",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "5ldko",
+                      "name": "Card",
+                      "width": "fill_container",
+                      "fill": "$--card",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000d",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 1.75
+                      },
+                      "layout": "vertical",
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bgIEb",
+                          "name": "Card Header",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "n11LY",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Общо за 2025",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hIAwn",
+                          "name": "Card Content",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "4kYwX",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "704.39€",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 24,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Bm2E5",
+                          "name": "Card Actions",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 4,
+                          "padding": [
+                            8,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Hz3dd",
+                              "name": "Frame 2",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "yUN8t",
+                                  "name": "plus",
+                                  "width": 16,
+                                  "height": 16,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "DfTlR",
+                                      "x": 2,
+                                      "y": 2,
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "arrow-up-right",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--primary"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "SSL4b",
+                                  "name": "Label Selected",
+                                  "fill": "$--muted-foreground",
+                                  "content": "Януари (54.66 €)",
+                                  "lineHeight": 1.4285714285714286,
+                                  "fontFamily": "Inter",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "Rgs52",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "•",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "NSezV",
+                              "name": "Frame 2",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "GfgYb",
+                                  "name": "plus",
+                                  "width": 16,
+                                  "height": 16,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "sqwvk",
+                                      "x": 2,
+                                      "y": 2,
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "arrow-down-right",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--primary"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "5hknX",
+                                  "name": "Label Selected",
+                                  "fill": "$--muted-foreground",
+                                  "content": "Януари (54.66 €)",
+                                  "lineHeight": 1.4285714285714286,
+                                  "fontFamily": "Inter",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cPqRb",
+                      "name": "Card",
+                      "width": "fill_container",
+                      "fill": "$--card",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000d",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 1.75
+                      },
+                      "layout": "vertical",
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "jIRC5",
+                          "name": "Card Header",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qT0BY",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Средно/месец",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cbLoH",
+                          "name": "Card Content",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "w6VYN",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "54.66€",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 24,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "FKbKl",
+                          "name": "Card Actions",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 2,
+                          "padding": [
+                            8,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "y87Uf",
+                              "name": "plus",
+                              "width": 16,
+                              "height": 16,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "AlNIK",
+                                  "x": 2,
+                                  "y": 2,
+                                  "width": 12,
+                                  "height": 12,
+                                  "iconFontName": "arrow-down-right",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "$--destructive"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "bXQWP",
+                              "name": "Label Selected",
+                              "rotation": 0.019309727485615165,
+                              "fill": "$--destructive",
+                              "content": "+43.0% спрямо 2024",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rLcaB",
+                      "name": "Card",
+                      "width": "fill_container",
+                      "fill": "$--card",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000d",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 1.75
+                      },
+                      "layout": "vertical",
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tkOPU",
+                          "name": "Card Header",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "nDP1y",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Наем",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "90wvl",
+                          "name": "Card Content",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "3g7EN",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "765.00€",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 24,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "i3uwF",
+                          "name": "Card Actions",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 2,
+                          "padding": [
+                            8,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "AT0xC",
+                              "name": "plus",
+                              "width": 16,
+                              "height": 16,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "khMak",
+                                  "x": 2,
+                                  "y": 2,
+                                  "width": 12,
+                                  "height": 12,
+                                  "iconFontName": "circle-check",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "$--accent-foreground"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "YCtIN",
+                              "name": "Label Selected",
+                              "rotation": 0.019309727485615165,
+                              "fill": "$--accent-foreground",
+                              "content": "1 от 12 платени",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dcuI7",
+                  "name": "Overview cards",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "cDk56",
+                      "name": "Card",
+                      "width": 663,
+                      "height": "fill_container",
+                      "fill": "$--card",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000d",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 1.75
+                      },
+                      "layout": "vertical",
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "4kcLS",
+                          "name": "Card Header",
+                          "enabled": false,
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xJ2gv",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Общо за 2025",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "qPwBS",
+                          "name": "Card Content",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "A5KdZ",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "chart",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 24,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "TuOiX",
+                          "name": "Card Actions",
+                          "enabled": false,
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "padding": [
+                            8,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YdSf0",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "▲ Януари (54.66 €) · ▼ Януари (54.66 €)",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X6UqG",
+                      "name": "Card",
+                      "width": 325.3333333333333,
+                      "fill": "$--card",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--border"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000d",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 1.75
+                      },
+                      "layout": "vertical",
+                      "gap": 12,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "SHM3t",
+                          "name": "Card Header",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gPAGP",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "Годишни разходи",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "B4uVP",
+                              "name": "Button/Ghost",
+                              "cornerRadius": 6,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "gap": 6,
+                              "padding": [
+                                8,
+                                16
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ehAL8",
+                                  "name": "plus",
+                                  "width": 20,
+                                  "height": 20,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "zF8Uj",
+                                      "x": 2,
+                                      "y": 2,
+                                      "width": 16,
+                                      "height": 16,
+                                      "iconFontName": "plus",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--foreground"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "PiAk7",
+                                  "name": "Button",
+                                  "fill": "$--foreground",
+                                  "content": "Добави",
+                                  "lineHeight": 1.4286,
+                                  "textAlign": "center",
+                                  "textAlignVertical": "middle",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WvoQo",
+                          "name": "Card Content",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 8,
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "TJ4bj",
+                              "name": "Input",
+                              "width": "fill_container",
+                              "fill": "$--background",
+                              "cornerRadius": 6,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1,
+                                "fill": "$--input"
+                              },
+                              "gap": 8,
+                              "padding": [
+                                10,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "xp28A",
+                                  "name": "Input Value",
+                                  "fill": "$--foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Годишен данък",
+                                  "lineHeight": 1.4285714285714286,
+                                  "textAlignVertical": "middle",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Xr6xL",
+                                  "name": "plus",
+                                  "width": 20,
+                                  "height": 20,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "yO8eL",
+                                      "x": 2,
+                                      "y": 2,
+                                      "width": 16,
+                                      "height": 16,
+                                      "iconFontName": "pen-line",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--foreground"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "L5o5U",
+                                  "name": "plus",
+                                  "width": 20,
+                                  "height": 20,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "eusQp",
+                                      "x": 2,
+                                      "y": 2,
+                                      "width": 16,
+                                      "height": 16,
+                                      "iconFontName": "trash",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--destructive"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BduZ4",
+                          "name": "Card Actions",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "top": 1
+                            },
+                            "fill": "$--border"
+                          },
+                          "gap": 8,
+                          "padding": [
+                            8,
+                            0
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DYOzP",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "Общо годишни",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "ZiKz4",
+                              "name": "Label Selected",
+                              "fill": "$--primary",
+                              "content": "240.53 €",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "0B5bM",
+                  "name": "Table",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$--background",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "alignItems": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "aWkQK",
+          "x": 0,
+          "y": 0,
+          "name": "Overlay",
+          "opacity": 0.8,
+          "fill": "$--background",
+          "width": 1440,
+          "height": 752
+        },
+        {
+          "type": "frame",
+          "id": "qElLf",
+          "x": 530,
+          "y": 180,
+          "name": "Modal/Left",
+          "width": 360,
+          "fill": "$--background",
+          "cornerRadius": 8,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "$--border"
+          },
+          "effect": [
+            {
+              "type": "shadow",
+              "shadowType": "outer",
+              "color": "#0000001a",
+              "offset": {
+                "x": 0,
+                "y": 20
+              },
+              "blur": 20
+            },
+            {
+              "type": "shadow",
+              "shadowType": "outer",
+              "color": "#0000000a",
+              "offset": {
+                "x": 0,
+                "y": 10
+              },
+              "blur": 10
+            }
+          ],
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "ZouQf",
+              "name": "Card Header",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 24,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IQUGD",
+                  "name": "Modal Title",
+                  "fill": "$--foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Добави разход",
+                  "lineHeight": 1.4,
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rdUhQ",
+              "name": "Card Content",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "layout": "vertical",
+              "gap": 32,
+              "padding": 24,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "UkwON",
+                  "name": "Frame 5",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "3DR1H",
+                      "name": "Input",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dgQWg",
+                          "name": "Label Selected",
+                          "fill": "$--muted-foreground",
+                          "content": "0",
+                          "lineHeight": 1.4285714285714286,
+                          "fontFamily": "Inter",
+                          "fontSize": 40,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "XByz2",
+                          "name": "Label Selected",
+                          "rotation": -0.11429113014449468,
+                          "fill": "$--foreground",
+                          "content": "€",
+                          "lineHeight": 1.4285714285714286,
+                          "fontFamily": "Inter",
+                          "fontSize": 40
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b1Jh4",
+                      "name": "Tabs",
+                      "clip": true,
+                      "fill": "$--secondary",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "gap": 2,
+                      "padding": 2,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Ous3S",
+                          "name": "Tab Item/Active",
+                          "fill": "$--background",
+                          "cornerRadius": 3,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "effect": {
+                            "type": "shadow",
+                            "shadowType": "outer",
+                            "color": "#0000000d",
+                            "offset": {
+                              "x": 0,
+                              "y": 1
+                            },
+                            "blur": 1.75
+                          },
+                          "gap": 8,
+                          "padding": [
+                            2,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "F15TB",
+                              "name": "Label Selected",
+                              "fill": "$--foreground",
+                              "content": "EUR",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "54H2W",
+                          "name": "Tab Item/Inactive",
+                          "cornerRadius": 3,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "padding": [
+                            2,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "bWQ1k",
+                              "name": "Label Selected",
+                              "fill": "$--muted-foreground",
+                              "content": "BGN",
+                              "lineHeight": 1.4285714285714286,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WzyZu",
+                  "name": "Details",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jyVr1",
+                      "name": "Input/Default",
+                      "reusable": true,
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dvvNo",
+                          "name": "Label Text",
+                          "enabled": false,
+                          "width": "fill_container",
+                          "fill": {
+                            "type": "color",
+                            "color": "$--white",
+                            "enabled": false
+                          },
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hGkG3",
+                              "name": "Label Text",
+                              "fill": "$--foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Label Text",
+                              "lineHeight": 1.4285714285714286,
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "7sKTl",
+                          "name": "Input",
+                          "width": "fill_container",
+                          "fill": "$--background",
+                          "cornerRadius": 6,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "$--input"
+                          },
+                          "gap": 8,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DrXz4",
+                              "name": "Input Value",
+                              "fill": "$--muted-foreground",
+                              "content": "Placeholder",
+                              "lineHeight": 1.4285714285714286,
+                              "textAlignVertical": "middle",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wNA70",
+              "name": "Card Actions",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "gap": 8,
+              "padding": 24,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "vAruE",
+                  "type": "ref",
+                  "ref": "TdLn1"
+                },
+                {
+                  "id": "K6JK0",
+                  "type": "ref",
+                  "ref": "e3I9F"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
       "id": "Pc2CJ",
-      "x": 2827.209357066029,
-      "y": 478,
+      "x": 2207.2093570660295,
+      "y": 171,
       "name": "Select Group/Filled",
       "reusable": true,
       "rotation": -0.13948009468075886,
