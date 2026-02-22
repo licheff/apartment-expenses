@@ -1,5 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronRight } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
@@ -20,7 +19,6 @@ interface ExpenseTableProps {
   columnTotals: Record<string, number>
   grandTotal: number
   onEditRow: (month: number) => void
-  onDeleteRow: (month: number) => void
   hasRent?: boolean
   paidMonths?: number[]
   onToggleRentMonth?: (month: number) => void
@@ -32,7 +30,6 @@ export function ExpenseTable({
   columnTotals,
   grandTotal,
   onEditRow,
-  onDeleteRow,
   hasRent = false,
   paidMonths = [],
   onToggleRentMonth,
@@ -61,7 +58,7 @@ export function ExpenseTable({
               </TableHead>
             ))}
             <TableHead className="text-right min-w-[100px] font-bold">Общо</TableHead>
-            <TableHead className="w-[80px]" />
+            <TableHead className="w-[40px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -69,10 +66,17 @@ export function ExpenseTable({
             const hasData = row.total > 0
             const isPaid = paidMonths.includes(row.month)
             return (
-              <TableRow key={row.month} className={hasData ? '' : 'text-muted-foreground'}>
+              <TableRow
+                key={row.month}
+                className={cn(
+                  'cursor-pointer',
+                  !hasData && 'text-muted-foreground',
+                )}
+                onClick={() => onEditRow(row.month)}
+              >
                 <TableCell className="font-medium">{row.monthName}</TableCell>
                 {hasRent && (
-                  <TableCell className="text-center">
+                  <TableCell className="text-center" onClick={e => e.stopPropagation()}>
                     <Checkbox
                       checked={isPaid}
                       onCheckedChange={() => onToggleRentMonth?.(row.month)}
@@ -96,28 +100,7 @@ export function ExpenseTable({
                   {hasData ? formatCurrency(row.total) : '-'}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => onEditRow(row.month)}
-                      title="Редактирай"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    {hasData && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive"
-                        onClick={() => onDeleteRow(row.month)}
-                        title="Изтрий"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )

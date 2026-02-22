@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category, MonthRow } from '@/types'
 import { convertBgnToEur, convertEurToBgn } from '@/lib/constants'
@@ -21,6 +20,7 @@ interface EditExpenseDialogProps {
   categories: Category[]
   monthRow: MonthRow | null
   onSave: (entries: { categoryId: string; amount: number }[]) => Promise<void>
+  onDeleteExpense: (id: string) => Promise<{ error: unknown }>
 }
 
 export function EditExpenseDialog({
@@ -29,6 +29,7 @@ export function EditExpenseDialog({
   categories,
   monthRow,
   onSave,
+  onDeleteExpense,
 }: EditExpenseDialogProps) {
   const [amounts, setAmounts] = useState<Record<string, string>>({})
   const [currencies, setCurrencies] = useState<Record<string, Currency>>({})
@@ -66,47 +67,73 @@ export function EditExpenseDialog({
     onOpenChange(false)
   }
 
+  const handleDeleteExpense = async (categoryId: string) => {
+    if (!monthRow) return
+    const id = monthRow.expenseIds[categoryId]
+    if (!id) return
+    await onDeleteExpense(id)
+  }
+
   if (!monthRow) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle>Редактирай — {monthRow.monthName}</DialogTitle>
+      <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden">
+
+        {/* Header */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="text-xl font-semibold">{monthRow.monthName}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+
+        {/* Content */}
+        <div className="px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
           {categories.map(cat => {
             const val = amounts[cat.id] ?? ''
             const cur = currencies[cat.id] ?? 'EUR'
+            const hasExpense = monthRow.expenseIds[cat.id] != null
             return (
-              <div key={cat.id} className="grid gap-1">
+              <div key={cat.id} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <Label>{cat.name}</Label>
-                  <CurrencyToggle
-                    value={cur}
-                    onChange={c => {
-                      setCurrencies(prev => ({ ...prev, [cat.id]: c }))
-                      const num = Number(val)
-                      if (val && num > 0) {
-                        const converted = c === 'BGN'
-                          ? convertEurToBgn(num)
-                          : convertBgnToEur(num)
-                        setAmounts(prev => ({
-                          ...prev,
-                          [cat.id]: converted.toFixed(2),
-                        }))
-                      }
-                    }}
-                  />
+                  <span className="text-sm font-medium">{cat.name}</span>
+                  <div className="flex items-center gap-2">
+                    <CurrencyToggle
+                      value={cur}
+                      onChange={c => {
+                        setCurrencies(prev => ({ ...prev, [cat.id]: c }))
+                        const num = Number(val)
+                        if (val && num > 0) {
+                          const converted = c === 'BGN'
+                            ? convertEurToBgn(num)
+                            : convertBgnToEur(num)
+                          setAmounts(prev => ({
+                            ...prev,
+                            [cat.id]: converted.toFixed(2),
+                          }))
+                        }
+                      }}
+                    />
+                    {hasExpense && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteExpense(cat.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                  type="text"
+                  inputMode="decimal"
                   value={val}
-                  onChange={e =>
-                    setAmounts(prev => ({ ...prev, [cat.id]: e.target.value }))
-                  }
+                  onChange={e => {
+                    const v = e.target.value.replace(',', '.')
+                    if (v === '' || /^\d*\.?\d*$/.test(v)) {
+                      setAmounts(prev => ({ ...prev, [cat.id]: v }))
+                    }
+                  }}
                   placeholder="0.00"
                 />
                 {cur === 'BGN' && val && Number(val) > 0 && (
@@ -118,14 +145,17 @@ export function EditExpenseDialog({
             )
           })}
         </div>
-        <DialogFooter>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t flex items-center gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отказ
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button className="flex-1" onClick={handleSave} disabled={saving}>
             {saving ? 'Запазване...' : 'Запази'}
           </Button>
-        </DialogFooter>
+        </div>
+
       </DialogContent>
     </Dialog>
   )

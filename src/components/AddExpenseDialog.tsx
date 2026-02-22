@@ -228,7 +228,7 @@ export function AddExpenseDialog({
                   inputMode="decimal"
                   value={amount}
                   onChange={e => {
-                    const v = e.target.value
+                    const v = e.target.value.replace(',', '.')
                     if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v)
                   }}
                   autoFocus

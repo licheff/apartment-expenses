@@ -96,7 +96,7 @@ function AuthenticatedApp({
     loading: expensesLoading,
     createExpense,
     createBulkExpenses,
-    deleteMonthExpenses,
+    deleteExpense,
     bulkUpsert,
     refetch: refetchExpenses,
   } = useExpenses(selectedApartmentId, selectedYear, currentCategories)
@@ -196,16 +196,17 @@ function AuthenticatedApp({
     [editMonth, selectedYear, bulkUpsert],
   )
 
-  const handleDeleteRow = useCallback(
-    async (month: number) => {
-      const { error } = await deleteMonthExpenses(month)
+  const handleDeleteExpense = useCallback(
+    async (id: string) => {
+      const { error } = await deleteExpense(id)
       if (error) {
         toast.error('Грешка при изтриване')
       } else {
-        toast.success('Записите за месеца са изтрити')
+        toast.success('Разходът е изтрит')
       }
+      return { error }
     },
-    [deleteMonthExpenses],
+    [deleteExpense],
   )
 
   const handleExport = useCallback(() => {
@@ -332,7 +333,6 @@ function AuthenticatedApp({
             columnTotals={columnTotals}
             grandTotal={grandTotal}
             onEditRow={handleEditRow}
-            onDeleteRow={handleDeleteRow}
             hasRent={!!currentApartment?.rent_amount}
             paidMonths={paidMonths}
             onToggleRentMonth={toggleRentMonth}
@@ -369,6 +369,7 @@ function AuthenticatedApp({
         categories={currentCategories}
         monthRow={editMonthRow}
         onSave={handleEditSave}
+        onDeleteExpense={handleDeleteExpense}
       />
 
       <CsvImportDialog
