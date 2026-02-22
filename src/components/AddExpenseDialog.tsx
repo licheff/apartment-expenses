@@ -56,6 +56,7 @@ export function AddExpenseDialog({
   const [exitChar, setExitChar] = useState<string | null>(null)
   const [exitKey, setExitKey] = useState(0)
   const [shaking, setShaking] = useState(false)
+  const [focused, setFocused] = useState(false)
   const prevAmountRef = useRef('')
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -171,7 +172,7 @@ export function AddExpenseDialog({
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
   const formatted = formatAmountInput(amount)
-  const amountFontSize = formatted.length > 9 ? 24 : formatted.length > 6 ? 32 : 40
+  const amountFontSize = formatted.length > 10 ? 24 : formatted.length > 9 ? 32 : 40
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -237,10 +238,17 @@ export function AddExpenseDialog({
                     }
                     setAmount(result)
                   }}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
                   autoFocus
                   className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
                 />
               </div>
+              {/* Blinking caret — outside relative container so it doesn't shift layout */}
+              <span
+                className={`pointer-events-none font-light ${focused ? 'animate-caret' : 'opacity-0'}`}
+                style={{ fontSize: amountFontSize, lineHeight: 1 }}
+              >|</span>
               <span className="font-bold leading-none pointer-events-none" style={{ fontSize: amountFontSize }}>
                 {currencySymbol}
               </span>
