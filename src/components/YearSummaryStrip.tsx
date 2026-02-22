@@ -1,5 +1,6 @@
 import { ArrowUpRight, ArrowDownRight, CircleCheck, Minus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import type { YearSummary } from '@/types'
 import { formatCurrency } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -28,18 +29,20 @@ function YoYBadge({
   const pct = (diff / previous) * 100
   const isUp = diff > 0
   const isDown = diff < 0
-  const Icon = isUp ? ArrowDownRight : isDown ? ArrowUpRight : Minus
-  const color = isUp
-    ? 'text-destructive'
-    : isDown
-      ? 'text-green-600'
-      : 'text-muted-foreground'
-
+  const Icon = isUp ? ArrowUpRight : isDown ? ArrowDownRight : Minus
   return (
-    <span className={cn('inline-flex items-center pt-2 text-[12px]', color)}>
-      <Icon className="h-3 w-3" />
+    <Badge
+      variant="outline"
+      className={cn(
+        'mt-2',
+        isUp && 'border-destructive/30 bg-destructive/10 text-destructive',
+        isDown && 'border-green-600/30 bg-green-500/10 text-green-600 dark:text-green-500 dark:border-green-500/30',
+        !isUp && !isDown && 'text-muted-foreground',
+      )}
+    >
+      <Icon />
       {isUp ? '+' : ''}{pct.toFixed(1)}% спрямо {previousYear}
-    </span>
+    </Badge>
   )
 }
 
@@ -126,10 +129,10 @@ export function YearSummaryStrip({
               <p className="text-2xl font-bold tabular-nums leading-tight">
                 {formatCurrency(totalCollected)}
               </p>
-              <p className="flex items-center gap-1 text-[12px] text-accent-foreground pt-2">
-                <CircleCheck className="h-3 w-3" />
+              <Badge variant="secondary" className="mt-2">
+                <CircleCheck />
                 {paidMonths.length} от 12 платени
-              </p>
+              </Badge>
             </div>
           </CardContent>
         </Card>

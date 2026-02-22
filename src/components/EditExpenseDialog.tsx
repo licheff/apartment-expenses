@@ -96,56 +96,58 @@ export function EditExpenseDialog({
               <div key={cat.id} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{cat.name}</span>
-                  <div className="flex items-center gap-2">
-                    <CurrencyToggle
-                      value={cur}
-                      onChange={c => {
-                        setCurrencies(prev => ({ ...prev, [cat.id]: c }))
-                        const num = Number(val)
-                        if (val && num > 0) {
-                          const converted = c === 'BGN'
-                            ? convertEurToBgn(num)
-                            : convertBgnToEur(num)
-                          setAmounts(prev => ({
-                            ...prev,
-                            [cat.id]: converted.toFixed(2),
-                          }))
-                        }
-                      }}
-                    />
-                    {hasExpense && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteExpense(cat.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
                 </div>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  value={val}
-                  onChange={e => {
-                    const result = validateAmountInput(e.target.value)
-                    if (result === false) {
-                      setShakingFields(prev => ({ ...prev, [cat.id]: true }))
-                      setTimeout(() => setShakingFields(prev => ({ ...prev, [cat.id]: false })), 400)
-                      return
-                    }
-                    setAmounts(prev => ({ ...prev, [cat.id]: result }))
-                  }}
-                  placeholder="0.00"
-                  className={shakingFields[cat.id] ? 'animate-shake' : ''}
-                />
-                {cur === 'BGN' && val && Number(val) > 0 && (
-                  <p className="text-xs text-muted-foreground text-right">
-                    ≈ {convertBgnToEur(Number(val)).toFixed(2)} €
-                  </p>
-                )}
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={val}
+                    onChange={e => {
+                      const result = validateAmountInput(e.target.value)
+                      if (result === false) {
+                        setShakingFields(prev => ({ ...prev, [cat.id]: true }))
+                        setTimeout(() => setShakingFields(prev => ({ ...prev, [cat.id]: false })), 400)
+                        return
+                      }
+                      setAmounts(prev => ({ ...prev, [cat.id]: result }))
+                    }}
+                    placeholder="0.00"
+                    className={shakingFields[cat.id] ? 'animate-shake' : 'max-w-[200px]' }
+                  />
+                  {cur === 'BGN' && val && Number(val) > 0 && (
+                    <p className="text-xs text-muted-foreground text-right">
+                      ≈ {convertBgnToEur(Number(val)).toFixed(2)} €
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2">
+                      <CurrencyToggle
+                        value={cur}
+                        onChange={c => {
+                          setCurrencies(prev => ({ ...prev, [cat.id]: c }))
+                          const num = Number(val)
+                          if (val && num > 0) {
+                            const converted = c === 'BGN'
+                              ? convertEurToBgn(num)
+                              : convertBgnToEur(num)
+                            setAmounts(prev => ({
+                              ...prev,
+                              [cat.id]: converted.toFixed(2),
+                            }))
+                          }
+                        }}
+                      />
+                      {hasExpense && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteExpense(cat.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
               </div>
             )
           })}
