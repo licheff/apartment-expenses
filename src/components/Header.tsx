@@ -127,9 +127,9 @@ export function Header({
               className="ml-auto hidden sm:inline-flex"
               onClick={onAdd}
             >
-              <Plus className="h-4 w-4" />
+              {/* <Plus className="h-4 w-4" /> */}
               Добави разход
-              <kbd className="ml-1 text-[10px] opacity-50 font-sans">⌘A</kbd>
+              <kbd className="ml-0 text-[11px] opacity-60 font-sans">⌘A</kbd>
             </Button>
           </div>
         )}
