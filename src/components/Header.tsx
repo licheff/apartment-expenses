@@ -1,4 +1,4 @@
-import { ArrowDownUp, Upload, Download, Settings, Sun, Moon, Monitor, LogOut, Plus } from 'lucide-react'
+import { ArrowDownUp, Upload, Download, Settings, Sun, Moon, Monitor, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -127,7 +127,6 @@ export function Header({
               className="ml-auto hidden sm:inline-flex"
               onClick={onAdd}
             >
-              {/* <Plus className="h-4 w-4" /> */}
               Добави разход
               <kbd className="ml-0 text-[11px] opacity-60 font-sans">⌘A</kbd>
             </Button>
