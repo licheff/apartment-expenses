@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category, MonthRow } from '@/types'
-import { convertBgnToEur, convertEurToBgn } from '@/lib/constants'
+import { convertBgnToEur, convertEurToBgn, validateAmountInput } from '@/lib/constants'
 
 type Currency = 'EUR' | 'BGN'
 
@@ -34,6 +34,7 @@ export function EditExpenseDialog({
   const [amounts, setAmounts] = useState<Record<string, string>>({})
   const [currencies, setCurrencies] = useState<Record<string, Currency>>({})
   const [saving, setSaving] = useState(false)
+  const [shakingFields, setShakingFields] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (monthRow) {
@@ -129,12 +130,16 @@ export function EditExpenseDialog({
                   inputMode="decimal"
                   value={val}
                   onChange={e => {
-                    const v = e.target.value.replace(',', '.')
-                    if (v === '' || /^\d*\.?\d*$/.test(v)) {
-                      setAmounts(prev => ({ ...prev, [cat.id]: v }))
+                    const result = validateAmountInput(e.target.value)
+                    if (result === false) {
+                      setShakingFields(prev => ({ ...prev, [cat.id]: true }))
+                      setTimeout(() => setShakingFields(prev => ({ ...prev, [cat.id]: false })), 400)
+                      return
                     }
+                    setAmounts(prev => ({ ...prev, [cat.id]: result }))
                   }}
                   placeholder="0.00"
+                  className={shakingFields[cat.id] ? 'animate-shake' : ''}
                 />
                 {cur === 'BGN' && val && Number(val) > 0 && (
                   <p className="text-xs text-muted-foreground text-right">

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
@@ -260,6 +260,34 @@ function AuthenticatedApp({
     return () => window.removeEventListener('keydown', handler)
   }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen, categoriesDialogOpen])
 
+  // Hide mobile add button on scroll down, show on scroll up or after .8s idle
+  const [showMobileAdd, setShowMobileAdd] = useState(true)
+  const lastScrollY = useRef(0)
+  const scrollTimer = useRef<ReturnType<typeof setTimeout>>(null)
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      const scrollingUp = y < lastScrollY.current
+      lastScrollY.current = y
+
+      if (scrollingUp || y < 10) {
+        setShowMobileAdd(true)
+        if (scrollTimer.current) clearTimeout(scrollTimer.current)
+      } else {
+        setShowMobileAdd(false)
+        if (scrollTimer.current) clearTimeout(scrollTimer.current)
+        // Re-show after 2s of no scrolling
+        scrollTimer.current = setTimeout(() => setShowMobileAdd(true), 800)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (scrollTimer.current) clearTimeout(scrollTimer.current)
+    }
+  }, [])
+
   const editMonthRow: MonthRow | null = useMemo(
     () => (editMonth !== null ? monthRows.find(r => r.month === editMonth) ?? null : null),
     [editMonth, monthRows],
@@ -282,6 +310,7 @@ function AuthenticatedApp({
         theme={theme}
         onThemeChange={setTheme}
         onSignOut={signOut}
+        onAdd={handleOpenAdd}
       />
 
       <main className="mx-auto px-4 py-6 pb-24 space-y-6 max-w-[1000px]">
@@ -340,15 +369,15 @@ function AuthenticatedApp({
         )}
       </main>
 
-      {/* Sticky Add button */}
-      <div className="fixed bottom-6 right-6 z-10">
-        <Button
-          size="lg"
-          className="rounded-full shadow-lg h-14 w-14 p-0"
-          onClick={handleOpenAdd}
-          title="Добави разход"
-        >
-          <Plus className="h-6 w-6" />
+      {/* Mobile-only sticky add button — hides on scroll down */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-10 p-4 sm:hidden transition-transform duration-200 ${
+          showMobileAdd ? 'translate-y-0' : 'translate-y-full'
+        }`}
+      >
+        <Button className="w-full" size="lg" onClick={handleOpenAdd}>
+          <Plus className="h-5 w-5" />
+          Добави разход
         </Button>
       </div>
 

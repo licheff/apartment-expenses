@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { YearlyExpense } from '@/types'
-import { formatCurrency, convertBgnToEur, formatAmountInput } from '@/lib/constants'
+import { formatCurrency, convertBgnToEur, formatAmountInput, validateAmountInput } from '@/lib/constants'
 
 type Currency = 'EUR' | 'BGN'
 
@@ -40,6 +40,7 @@ export function YearlyExpensesSection({
   const [animKey, setAnimKey] = useState(0)
   const [exitChar, setExitChar] = useState<string | null>(null)
   const [exitKey, setExitKey] = useState(0)
+  const [shaking, setShaking] = useState(false)
   const prevAmountRef = useRef('')
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -118,7 +119,7 @@ export function YearlyExpensesSection({
     <Card className="h-full py-0">
       <CardHeader className="px-4 pt-4 pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-normal text-muted-foreground">
+          <CardTitle className="text-sm text-foreground">
             Годишни разходи
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={openAdd}>
@@ -176,7 +177,7 @@ export function YearlyExpensesSection({
             {/* Amount + currency toggle */}
             <div className="flex flex-col items-center gap-3">
               <div
-                className="flex items-baseline justify-center gap-0.5 cursor-text"
+                className={`flex items-baseline justify-center gap-0.5 cursor-text h-[40px] ${shaking ? 'animate-shake' : ''}`}
                 onClick={() => inputRef.current?.focus()}
               >
                 <div className="relative inline-flex">
@@ -213,8 +214,13 @@ export function YearlyExpensesSection({
                     inputMode="decimal"
                     value={amount}
                     onChange={e => {
-                      const v = e.target.value.replace(',', '.')
-                      if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v)
+                      const result = validateAmountInput(e.target.value)
+                      if (result === false) {
+                        setShaking(true)
+                        setTimeout(() => setShaking(false), 400)
+                        return
+                      }
+                      setAmount(result)
                     }}
                     autoFocus
                     className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"

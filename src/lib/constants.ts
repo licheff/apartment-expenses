@@ -45,6 +45,30 @@ export const BG_MONTH_TO_NUMBER: Record<string, number> = {
 
 export const BGN_TO_EUR_RATE = 1.95583
 
+/**
+ * Validates and sanitizes amount input.
+ * Rules: max 6 digits before decimal, max 2 after, no leading zeros (except lone 0).
+ * Returns the cleaned string if valid, or `false` if the input should be rejected (trigger shake).
+ */
+export function validateAmountInput(raw: string): string | false {
+  const v = raw.replace(',', '.')
+  // Allow empty
+  if (v === '') return ''
+  // Must be digits with optional single decimal
+  if (!/^\d*\.?\d*$/.test(v)) return false
+
+  const [intPart, decPart] = v.split('.')
+
+  // No leading zeros except a lone "0" or "0."
+  if (intPart.length > 1 && intPart[0] === '0') return false
+  // Max 6 digits before decimal
+  if (intPart.length > 6) return false
+  // Max 2 digits after decimal
+  if (decPart !== undefined && decPart.length > 2) return false
+
+  return v
+}
+
 export function convertBgnToEur(bgn: number): number {
   return bgn / BGN_TO_EUR_RATE
 }

@@ -1,4 +1,4 @@
-import { ArrowDownUp, Upload, Download, Settings, Sun, Moon, Monitor, LogOut } from 'lucide-react'
+import { ArrowDownUp, Upload, Download, Settings, Sun, Moon, Monitor, LogOut, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ interface HeaderProps {
   theme: Theme
   onThemeChange: (theme: Theme) => void
   onSignOut: () => void
+  onAdd: () => void
 }
 
 const themeOptions: { value: Theme; label: string; icon: typeof Sun }[] = [
@@ -45,6 +46,7 @@ export function Header({
   theme,
   onThemeChange,
   onSignOut,
+  onAdd,
 }: HeaderProps) {
   const currentThemeOption = themeOptions.find(t => t.value === theme) ?? themeOptions[2]
   const ThemeIcon = currentThemeOption.icon
@@ -54,7 +56,7 @@ export function Header({
       <div className="mx-auto max-w-[1000px] px-4">
         {/* Top row: title + actions */}
         <div className="flex items-center justify-between py-3">
-          <h1 className="text-2xl font-bold tracking-tight">Сметки</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Бюджетник</h1>
           <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -120,6 +122,15 @@ export function Header({
                 onSelect={onSelectYear}
               />
             )}
+            <Button
+              size="sm"
+              className="ml-auto hidden sm:inline-flex"
+              onClick={onAdd}
+            >
+              <Plus className="h-4 w-4" />
+              Добави разход
+              <kbd className="ml-1 text-[10px] opacity-50 font-sans">⌘A</kbd>
+            </Button>
           </div>
         )}
       </div>

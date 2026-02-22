@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category } from '@/types'
-import { MONTH_NAMES, convertBgnToEur, formatAmountInput } from '@/lib/constants'
+import { MONTH_NAMES, convertBgnToEur, formatAmountInput, validateAmountInput } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 
 type Currency = 'EUR' | 'BGN'
@@ -55,6 +55,7 @@ export function AddExpenseDialog({
   const [animKey, setAnimKey] = useState(0)
   const [exitChar, setExitChar] = useState<string | null>(null)
   const [exitKey, setExitKey] = useState(0)
+  const [shaking, setShaking] = useState(false)
   const prevAmountRef = useRef('')
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -188,7 +189,7 @@ export function AddExpenseDialog({
           <div className="flex flex-col items-center gap-3">
             {/* Clicking anywhere on the row focuses the hidden input */}
             <div
-              className="flex items-baseline justify-center gap-0.5 cursor-text"
+              className={`flex items-baseline justify-center gap-0.5 cursor-text h-[40px] ${shaking ? 'animate-shake' : ''}`}
               onClick={() => inputRef.current?.focus()}
             >
               <div className="relative inline-flex">
@@ -228,8 +229,13 @@ export function AddExpenseDialog({
                   inputMode="decimal"
                   value={amount}
                   onChange={e => {
-                    const v = e.target.value.replace(',', '.')
-                    if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v)
+                    const result = validateAmountInput(e.target.value)
+                    if (result === false) {
+                      setShaking(true)
+                      setTimeout(() => setShaking(false), 400)
+                      return
+                    }
+                    setAmount(result)
                   }}
                   autoFocus
                   className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
