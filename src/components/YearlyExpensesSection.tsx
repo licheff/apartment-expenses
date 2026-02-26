@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { YearlyExpense } from '@/types'
-import { formatCurrency, convertBgnToEur, formatAmountInput, validateAmountInput } from '@/lib/constants'
+import { formatCurrency, convertBgnToEur, evaluateExpression, formatAmountInput, validateExpressionInput } from '@/lib/constants'
 
 type Currency = 'EUR' | 'BGN'
 
@@ -92,16 +92,41 @@ export function YearlyExpensesSection({
     resetAnimState()
   }
 
+  const commitExpression = () => {
+    if (!amount || ![...amount].some(c => '+-*/()'.includes(c))) return
+    const result = evaluateExpression(amount)
+    if (result === false) {
+      setShaking(true)
+      setTimeout(() => setShaking(false), 400)
+    } else {
+      setAmount(String(result))
+    }
+  }
+
+  const resolveAmount = (): number | null => {
+    let final = amount
+    if ([...final].some(c => '+-*/()'.includes(c))) {
+      const result = evaluateExpression(final)
+      if (result === false) return null
+      final = String(result)
+    }
+    return parseFloat(final)
+  }
+
   const handleAdd = async () => {
     if (!name.trim() || !amount) return
-    const eur = currency === 'BGN' ? convertBgnToEur(parseFloat(amount)) : parseFloat(amount)
+    const raw = resolveAmount()
+    if (raw === null) return
+    const eur = currency === 'BGN' ? convertBgnToEur(raw) : raw
     await onCreate(name.trim(), eur)
     closeDialog()
   }
 
   const handleEdit = async () => {
     if (!selectedExp || !amount) return
-    const eur = currency === 'BGN' ? convertBgnToEur(parseFloat(amount)) : parseFloat(amount)
+    const raw = resolveAmount()
+    if (raw === null) return
+    const eur = currency === 'BGN' ? convertBgnToEur(raw) : raw
     await onUpdate(selectedExp.id, eur)
     closeDialog()
   }
@@ -113,7 +138,8 @@ export function YearlyExpensesSection({
   }
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
-  const formatted = formatAmountInput(amount)
+  const isExpression = [...amount].some(c => '+-*/()'.includes(c))
+  const formatted = isExpression ? amount : formatAmountInput(amount)
   const amountFontSize = formatted.length > 10 ? 24 : formatted.length > 9 ? 32 : 40
 
   return (
@@ -212,10 +238,10 @@ export function YearlyExpensesSection({
                   <input
                     ref={inputRef}
                     type="text"
-                    inputMode="decimal"
+                    inputMode="text"
                     value={amount}
                     onChange={e => {
-                      const result = validateAmountInput(e.target.value)
+                      const result = validateExpressionInput(e.target.value)
                       if (result === false) {
                         setShaking(true)
                         setTimeout(() => setShaking(false), 400)
@@ -223,8 +249,9 @@ export function YearlyExpensesSection({
                       }
                       setAmount(result)
                     }}
+                    onKeyDown={e => { if (e.key === 'Enter') commitExpression() }}
                     onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
+                    onBlur={() => { setFocused(false); commitExpression() }}
                     autoFocus
                     className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
                   />
@@ -239,7 +266,7 @@ export function YearlyExpensesSection({
                 </span>
               </div>
               <CurrencyToggle value={currency} onChange={setCurrency} />
-              {currency === 'BGN' && amount && (
+              {currency === 'BGN' && amount && !isExpression && (
                 <p className="text-xs text-muted-foreground -mt-1">
                   ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
                 </p>

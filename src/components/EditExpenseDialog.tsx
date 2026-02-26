@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category, MonthRow } from '@/types'
-import { convertBgnToEur, convertEurToBgn, validateAmountInput } from '@/lib/constants'
+import { convertBgnToEur, convertEurToBgn, evaluateExpression, validateExpressionInput } from '@/lib/constants'
 
 type Currency = 'EUR' | 'BGN'
 
@@ -51,12 +51,30 @@ export function EditExpenseDialog({
     }
   }, [monthRow, categories])
 
+  const commitExpression = (catId: string, val: string) => {
+    if (!val || ![...val].some(c => '+-*/()'.includes(c))) return
+    const result = evaluateExpression(val)
+    if (result === false) {
+      setShakingFields(prev => ({ ...prev, [catId]: true }))
+      setTimeout(() => setShakingFields(prev => ({ ...prev, [catId]: false })), 400)
+    } else {
+      setAmounts(prev => ({ ...prev, [catId]: String(result) }))
+    }
+  }
+
   const handleSave = async () => {
     setSaving(true)
     const entries = categories
-      .filter(cat => amounts[cat.id] && Number(amounts[cat.id]) > 0)
+      .filter(cat => {
+        const v = amounts[cat.id]
+        if (!v) return false
+        if ([...v].some(c => '+-*/()'.includes(c))) return evaluateExpression(v) !== false
+        return Number(v) > 0
+      })
       .map(cat => {
-        const raw = Number(amounts[cat.id])
+        let v = amounts[cat.id]
+        if ([...v].some(c => '+-*/()'.includes(c))) v = String(evaluateExpression(v) || 0)
+        const raw = Number(v)
         const cur = currencies[cat.id] ?? 'EUR'
         return {
           categoryId: cat.id,
@@ -100,10 +118,10 @@ export function EditExpenseDialog({
                 <div className="flex items-center gap-2">
                   <Input
                     type="text"
-                    inputMode="decimal"
+                    inputMode="text"
                     value={val}
                     onChange={e => {
-                      const result = validateAmountInput(e.target.value)
+                      const result = validateExpressionInput(e.target.value)
                       if (result === false) {
                         setShakingFields(prev => ({ ...prev, [cat.id]: true }))
                         setTimeout(() => setShakingFields(prev => ({ ...prev, [cat.id]: false })), 400)
@@ -111,10 +129,12 @@ export function EditExpenseDialog({
                       }
                       setAmounts(prev => ({ ...prev, [cat.id]: result }))
                     }}
+                    onKeyDown={e => { if (e.key === 'Enter') commitExpression(cat.id, val) }}
+                    onBlur={() => commitExpression(cat.id, val)}
                     placeholder="0.00"
                     className={shakingFields[cat.id] ? 'animate-shake' : 'max-w-[200px]' }
                   />
-                  {cur === 'BGN' && val && Number(val) > 0 && (
+                  {cur === 'BGN' && val && Number(val) > 0 && ![...val].some(c => '+-*/()'.includes(c)) && (
                     <p className="text-xs text-muted-foreground text-right">
                       ≈ {convertBgnToEur(Number(val)).toFixed(2)} €
                     </p>

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { Category } from '@/types'
-import { MONTH_NAMES, convertBgnToEur, formatAmountInput, validateAmountInput } from '@/lib/constants'
+import { MONTH_NAMES, convertBgnToEur, evaluateExpression, formatAmountInput, validateExpressionInput } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 
 type Currency = 'EUR' | 'BGN'
@@ -138,10 +138,27 @@ export function AddExpenseDialog({
     prevAmountRef.current = amount
   }, [amount])
 
+  const commitExpression = () => {
+    if (!amount || ![...amount].some(c => '+-*/()'.includes(c))) return
+    const result = evaluateExpression(amount)
+    if (result === false) {
+      setShaking(true)
+      setTimeout(() => setShaking(false), 400)
+    } else {
+      setAmount(String(result))
+    }
+  }
+
   const handleSave = async () => {
     if (!categoryId || !amount) return
+    let finalAmount = amount
+    if ([...finalAmount].some(c => '+-*/()'.includes(c))) {
+      const result = evaluateExpression(finalAmount)
+      if (result === false) return
+      finalAmount = String(result)
+    }
     setSaving(true)
-    const rawAmount = parseFloat(amount)
+    const rawAmount = parseFloat(finalAmount)
     const eurAmount = currency === 'BGN' ? convertBgnToEur(rawAmount) : rawAmount
 
     if (allMonths) {
@@ -171,7 +188,8 @@ export function AddExpenseDialog({
   const willSaveCount = allMonths ? 12 - skippedCount : 1
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
-  const formatted = formatAmountInput(amount)
+  const isExpression = [...amount].some(c => '+-*/()'.includes(c))
+  const formatted = isExpression ? amount : formatAmountInput(amount)
   const amountFontSize = formatted.length > 10 ? 24 : formatted.length > 9 ? 32 : 40
 
   return (
@@ -227,10 +245,10 @@ export function AddExpenseDialog({
                 <input
                   ref={inputRef}
                   type="text"
-                  inputMode="decimal"
+                  inputMode="text"
                   value={amount}
                   onChange={e => {
-                    const result = validateAmountInput(e.target.value)
+                    const result = validateExpressionInput(e.target.value)
                     if (result === false) {
                       setShaking(true)
                       setTimeout(() => setShaking(false), 400)
@@ -238,8 +256,9 @@ export function AddExpenseDialog({
                     }
                     setAmount(result)
                   }}
+                  onKeyDown={e => { if (e.key === 'Enter') commitExpression() }}
                   onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
+                  onBlur={() => { setFocused(false); commitExpression() }}
                   autoFocus
                   className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
                 />
@@ -254,7 +273,7 @@ export function AddExpenseDialog({
               </span>
             </div>
             <CurrencyToggle value={currency} onChange={setCurrency} />
-            {currency === 'BGN' && amount && (
+            {currency === 'BGN' && amount && !isExpression && (
               <p className="text-xs text-muted-foreground -mt-1">
                 ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
               </p>

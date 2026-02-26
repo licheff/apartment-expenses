@@ -69,6 +69,38 @@ export function validateAmountInput(raw: string): string | false {
   return v
 }
 
+/**
+ * Evaluates a safe arithmetic expression (digits, +, -, *, /, parens).
+ * Returns the rounded numeric result, or `false` if invalid or non-positive.
+ */
+export function evaluateExpression(expr: string): number | false {
+  const clean = expr.replace(',', '.')
+  if (![...clean].every(c => '0123456789.+-*/() '.includes(c))) return false
+  try {
+    // eslint-disable-next-line no-new-func
+    const result = new Function('return ' + clean)() as unknown
+    if (typeof result === 'number' && isFinite(result) && result > 0) {
+      return Math.round(result * 100) / 100
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Validates input that may be a plain number or an arithmetic expression.
+ * Plain numbers use strict validateAmountInput rules.
+ * Expressions allow +, -, *, /, (, ), spaces — length is unrestricted during typing.
+ */
+export function validateExpressionInput(raw: string): string | false {
+  const v = raw.replace(',', '.')
+  if (v === '') return ''
+  if (/^\d*\.?\d*$/.test(v)) return validateAmountInput(v)
+  if ([...v].every(c => '0123456789.+-*/() '.includes(c))) return v
+  return false
+}
+
 export function convertBgnToEur(bgn: number): number {
   return bgn / BGN_TO_EUR_RATE
 }
