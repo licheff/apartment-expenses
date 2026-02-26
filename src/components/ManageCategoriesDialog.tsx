@@ -153,9 +153,8 @@ export function ManageCategoriesDialog({
                   <Label className="text-sm">Месечен наем (EUR)</Label>
                   <div className="flex gap-2">
                     <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="Няма наем"
                       value={getRentInput(apt)}
                       onChange={e =>

@@ -118,7 +118,7 @@ export function EditExpenseDialog({
                 <div className="flex items-center gap-2">
                   <Input
                     type="text"
-                    inputMode="text"
+                    inputMode="decimal"
                     value={val}
                     onChange={e => {
                       const result = validateExpressionInput(e.target.value)

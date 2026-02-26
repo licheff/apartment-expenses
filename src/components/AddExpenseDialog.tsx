@@ -245,7 +245,7 @@ export function AddExpenseDialog({
                 <input
                   ref={inputRef}
                   type="text"
-                  inputMode="text"
+                  inputMode="decimal"
                   value={amount}
                   onChange={e => {
                     const result = validateExpressionInput(e.target.value)
