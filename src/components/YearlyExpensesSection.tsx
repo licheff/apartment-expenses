@@ -273,8 +273,9 @@ export function YearlyExpensesSection({
                   ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
                 </p>
               )}
-              <MathOperatorButtons />
             </div>
+
+            <MathOperatorButtons />
 
             {/* Name input — add mode only */}
             {dialogMode === 'add' && (

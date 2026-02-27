@@ -280,8 +280,9 @@ export function AddExpenseDialog({
                 ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
               </p>
             )}
-            <MathOperatorButtons />
           </div>
+
+          <MathOperatorButtons />
 
           {/* Details: category + year / month */}
           <div className="w-full flex flex-col gap-1.5">
