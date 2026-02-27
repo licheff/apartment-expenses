@@ -46,22 +46,30 @@ function DialogOverlay({
   )
 }
 
+function isMathKeybarTarget(e: { detail?: { originalEvent?: { target?: EventTarget | null } }; target?: EventTarget | null }) {
+  const target = (e.detail?.originalEvent?.target ?? e.target) as HTMLElement | null
+  return target?.closest?.('[data-math-keybar]') != null
+}
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
   onPointerDownOutside,
+  onInteractOutside,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
   // Track visual viewport height so the dialog shrinks when the mobile keyboard opens
-  const [visualVh, setVisualVh] = useState<number | undefined>()
+  const [visualVh, setVisualVh] = useState(() => window.visualViewport?.height)
 
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
     const update = () => setVisualVh(vv.height)
+    update()
     vv.addEventListener('resize', update)
     vv.addEventListener('scroll', update)
     return () => {
@@ -75,20 +83,23 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        {...props}
         onPointerDownOutside={(e) => {
-          // Don't dismiss the dialog when tapping the MathKeybar
-          const target = e.detail.originalEvent.target as HTMLElement
-          if (target.closest?.('[data-math-keybar]')) {
-            e.preventDefault()
-          }
+          if (isMathKeybarTarget(e)) e.preventDefault()
           onPointerDownOutside?.(e)
+        }}
+        onInteractOutside={(e) => {
+          if (isMathKeybarTarget(e)) e.preventDefault()
+          onInteractOutside?.(e)
         }}
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-0 right-0 top-0 z-50 grid w-full h-[var(--visual-vh,100dvh)] overflow-y-auto gap-4 p-6 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border",
           className
         )}
-        style={visualVh != null ? { '--visual-vh': `${visualVh}px` } as React.CSSProperties : undefined}
-        {...props}
+        style={{
+          ...style,
+          ...(visualVh != null ? { '--visual-vh': `${visualVh}px` } : {})
+        } as React.CSSProperties}
       >
         {children}
         {showCloseButton && (
