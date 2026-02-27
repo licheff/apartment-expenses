@@ -13,7 +13,6 @@ import { EditExpenseDialog } from '@/components/EditExpenseDialog'
 import { CsvImportDialog } from '@/components/CsvImportDialog'
 import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
 import { YearlyExpensesSection } from '@/components/YearlyExpensesSection'
-import { MathKeybar } from '@/components/MathKeybar'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { useApartments } from '@/hooks/useApartments'
@@ -421,7 +420,6 @@ function AuthenticatedApp({
         onUpdateRentAmount={updateRentAmount}
       />
 
-      <MathKeybar />
     </div>
   )
 }

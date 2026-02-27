@@ -1,10 +1,11 @@
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { evaluateExpression } from "@/lib/constants"
 
 function Dialog({
   ...props
@@ -46,35 +47,134 @@ function DialogOverlay({
   )
 }
 
-function isMathKeybarTarget(e: { detail?: { originalEvent?: { target?: EventTarget | null } }; target?: EventTarget | null }) {
-  const target = (e.detail?.originalEvent?.target ?? e.target) as HTMLElement | null
-  return target?.closest?.('[data-math-keybar]') != null
+// ── Inline math operator bar (rendered inside the dialog, no portal) ──
+
+const OPERATORS = [
+  { label: "+", value: "+" },
+  { label: "−", value: "-" },
+  { label: "×", value: "*" },
+  { label: "÷", value: "/" },
+] as const
+
+function setNativeInputValue(el: HTMLInputElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set
+  setter?.call(el, value)
+  el.dispatchEvent(new Event("input", { bubbles: true }))
 }
+
+function MathOperatorBar() {
+  const [visible, setVisible] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const onFocusIn = (e: FocusEvent) => {
+      if ((e.target as HTMLElement).hasAttribute?.("data-math-input")) {
+        inputRef.current = e.target as HTMLInputElement
+        setVisible(true)
+      }
+    }
+    const onFocusOut = () => {
+      setTimeout(() => {
+        if (!(document.activeElement as HTMLElement)?.hasAttribute?.("data-math-input")) {
+          setVisible(false)
+        }
+      }, 100)
+    }
+    document.addEventListener("focusin", onFocusIn)
+    document.addEventListener("focusout", onFocusOut)
+    return () => {
+      document.removeEventListener("focusin", onFocusIn)
+      document.removeEventListener("focusout", onFocusOut)
+    }
+  }, [])
+
+  const insert = (char: string) => {
+    const el = inputRef.current
+    if (!el) return
+    const start = el.selectionStart ?? el.value.length
+    const end = el.selectionEnd ?? el.value.length
+    setNativeInputValue(el, el.value.slice(0, start) + char + el.value.slice(end))
+    el.focus()
+    requestAnimationFrame(() => el.setSelectionRange(start + 1, start + 1))
+  }
+
+  const evaluate = () => {
+    const el = inputRef.current
+    if (!el) return
+    const result = evaluateExpression(el.value)
+    if (result !== false) {
+      setNativeInputValue(el, String(result))
+      el.focus()
+    }
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="sticky bottom-0 -mx-6 -mb-6 flex gap-2 px-4 py-3 bg-muted border-t border-border sm:hidden">
+      {OPERATORS.map(({ label, value }) => (
+        <button
+          key={value}
+          type="button"
+          tabIndex={-1}
+          onTouchStart={(e) => e.preventDefault()}
+          onTouchEnd={() => insert(value)}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => insert(value)}
+          className="flex-1 h-11 rounded-xl bg-background text-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
+        >
+          {label}
+        </button>
+      ))}
+      <button
+        type="button"
+        tabIndex={-1}
+        onTouchStart={(e) => e.preventDefault()}
+        onTouchEnd={evaluate}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={evaluate}
+        className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
+      >
+        =
+      </button>
+    </div>
+  )
+}
+
+// ── DialogContent ──
 
 function DialogContent({
   className,
   children,
   showCloseButton = true,
-  onPointerDownOutside,
-  onInteractOutside,
   style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
-  // Track visual viewport height so the dialog shrinks when the mobile keyboard opens
-  const [visualVh, setVisualVh] = useState(() => window.visualViewport?.height)
+  const contentRef = useRef<HTMLDivElement>(null)
 
+  // Resize dialog to visual viewport on mobile so keyboard doesn't cover content
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
-    const update = () => setVisualVh(vv.height)
+
+    const update = () => {
+      const el = contentRef.current
+      if (!el) return
+      if (window.innerWidth < 640) {
+        el.style.height = `${vv.height}px`
+      } else {
+        el.style.height = ""
+      }
+    }
+
     update()
-    vv.addEventListener('resize', update)
-    vv.addEventListener('scroll', update)
+    vv.addEventListener("resize", update)
+    vv.addEventListener("scroll", update)
     return () => {
-      vv.removeEventListener('resize', update)
-      vv.removeEventListener('scroll', update)
+      vv.removeEventListener("resize", update)
+      vv.removeEventListener("scroll", update)
     }
   }, [])
 
@@ -82,26 +182,17 @@ function DialogContent({
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
+        ref={contentRef}
         data-slot="dialog-content"
-        {...props}
-        onPointerDownOutside={(e) => {
-          if (isMathKeybarTarget(e)) e.preventDefault()
-          onPointerDownOutside?.(e)
-        }}
-        onInteractOutside={(e) => {
-          if (isMathKeybarTarget(e)) e.preventDefault()
-          onInteractOutside?.(e)
-        }}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-0 right-0 top-0 z-50 grid w-full h-[var(--visual-vh,100dvh)] overflow-y-auto gap-4 p-6 pb-20 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:pb-6",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed inset-0 z-50 grid w-full overflow-y-auto gap-4 p-6 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border",
           className
         )}
-        style={{
-          ...style,
-          ...(visualVh != null ? { '--visual-vh': `${visualVh}px` } : {})
-        } as React.CSSProperties}
+        style={style}
+        {...props}
       >
         {children}
+        <MathOperatorBar />
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
