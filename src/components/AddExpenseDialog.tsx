@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
+import { MathOperatorButtons } from '@/components/MathOperatorButtons'
 import type { Category } from '@/types'
 import { MONTH_NAMES, convertBgnToEur, evaluateExpression, formatAmountInput, validateExpressionInput } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
@@ -279,6 +280,7 @@ export function AddExpenseDialog({
                 ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
               </p>
             )}
+            <MathOperatorButtons />
           </div>
 
           {/* Details: category + year / month */}

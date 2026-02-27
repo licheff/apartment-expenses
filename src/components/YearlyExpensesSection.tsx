@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
+import { MathOperatorButtons } from '@/components/MathOperatorButtons'
 import type { YearlyExpense } from '@/types'
 import { formatCurrency, convertBgnToEur, evaluateExpression, formatAmountInput, validateExpressionInput } from '@/lib/constants'
 
@@ -272,6 +273,7 @@ export function YearlyExpensesSection({
                   ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €
                 </p>
               )}
+              <MathOperatorButtons />
             </div>
 
             {/* Name input — add mode only */}

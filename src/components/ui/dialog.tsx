@@ -1,11 +1,10 @@
 import * as React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { evaluateExpression } from "@/lib/constants"
 
 function Dialog({
   ...props
@@ -44,100 +43,6 @@ function DialogOverlay({
       )}
       {...props}
     />
-  )
-}
-
-// ── Inline math operator bar (rendered inside the dialog, no portal) ──
-
-const OPERATORS = [
-  { label: "+", value: "+" },
-  { label: "−", value: "-" },
-  { label: "×", value: "*" },
-  { label: "÷", value: "/" },
-] as const
-
-function setNativeInputValue(el: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set
-  setter?.call(el, value)
-  el.dispatchEvent(new Event("input", { bubbles: true }))
-}
-
-function MathOperatorBar() {
-  const [visible, setVisible] = useState(false)
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  useEffect(() => {
-    const onFocusIn = (e: FocusEvent) => {
-      if ((e.target as HTMLElement).hasAttribute?.("data-math-input")) {
-        inputRef.current = e.target as HTMLInputElement
-        setVisible(true)
-      }
-    }
-    const onFocusOut = () => {
-      setTimeout(() => {
-        if (!(document.activeElement as HTMLElement)?.hasAttribute?.("data-math-input")) {
-          setVisible(false)
-        }
-      }, 100)
-    }
-    document.addEventListener("focusin", onFocusIn)
-    document.addEventListener("focusout", onFocusOut)
-    return () => {
-      document.removeEventListener("focusin", onFocusIn)
-      document.removeEventListener("focusout", onFocusOut)
-    }
-  }, [])
-
-  const insert = (char: string) => {
-    const el = inputRef.current
-    if (!el) return
-    const start = el.selectionStart ?? el.value.length
-    const end = el.selectionEnd ?? el.value.length
-    setNativeInputValue(el, el.value.slice(0, start) + char + el.value.slice(end))
-    el.focus()
-    requestAnimationFrame(() => el.setSelectionRange(start + 1, start + 1))
-  }
-
-  const evaluate = () => {
-    const el = inputRef.current
-    if (!el) return
-    const result = evaluateExpression(el.value)
-    if (result !== false) {
-      setNativeInputValue(el, String(result))
-      el.focus()
-    }
-  }
-
-  if (!visible) return null
-
-  return (
-    <div className="sticky bottom-0 -mx-6 -mb-6 flex gap-2 px-4 py-3 bg-muted border-t border-border sm:hidden">
-      {OPERATORS.map(({ label, value }) => (
-        <button
-          key={value}
-          type="button"
-          tabIndex={-1}
-          onTouchStart={(e) => e.preventDefault()}
-          onTouchEnd={() => insert(value)}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => insert(value)}
-          className="flex-1 h-11 rounded-xl bg-background text-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
-        >
-          {label}
-        </button>
-      ))}
-      <button
-        type="button"
-        tabIndex={-1}
-        onTouchStart={(e) => e.preventDefault()}
-        onTouchEnd={evaluate}
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={evaluate}
-        className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
-      >
-        =
-      </button>
-    </div>
   )
 }
 
@@ -192,7 +97,6 @@ function DialogContent({
         {...props}
       >
         {children}
-        <MathOperatorBar />
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"

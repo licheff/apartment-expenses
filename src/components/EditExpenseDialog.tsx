@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
+import { MathOperatorButtons } from '@/components/MathOperatorButtons'
 import type { Category, MonthRow } from '@/types'
 import { convertBgnToEur, convertEurToBgn, evaluateExpression, validateExpressionInput } from '@/lib/constants'
 
@@ -106,6 +107,7 @@ export function EditExpenseDialog({
 
         {/* Content */}
         <div className="px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          <MathOperatorButtons />
           {categories.map(cat => {
             const val = amounts[cat.id] ?? ''
             const cur = currencies[cat.id] ?? 'EUR'
