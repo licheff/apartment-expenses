@@ -239,6 +239,7 @@ export function YearlyExpensesSection({
                     ref={inputRef}
                     type="text"
                     inputMode="decimal"
+                    data-math-input=""
                     value={amount}
                     onChange={e => {
                       const result = validateExpressionInput(e.target.value)

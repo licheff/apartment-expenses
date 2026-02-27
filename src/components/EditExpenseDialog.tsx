@@ -119,6 +119,7 @@ export function EditExpenseDialog({
                   <Input
                     type="text"
                     inputMode="decimal"
+                    data-math-input=""
                     value={val}
                     onChange={e => {
                       const result = validateExpressionInput(e.target.value)
