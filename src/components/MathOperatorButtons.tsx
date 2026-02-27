@@ -49,7 +49,7 @@ export function MathOperatorButtons() {
   }
 
   return (
-    <div className="flex gap-1.5 sm:hidden">
+    <div className="flex w-full gap-1.5 sm:hidden">
       {OPERATORS.map(({ label, value }) => (
         <button
           key={value}
