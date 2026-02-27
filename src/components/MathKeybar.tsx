@@ -86,7 +86,7 @@ export function MathKeybar() {
         <button
           key={value}
           tabIndex={-1}
-          onMouseDown={e => e.preventDefault()}
+          onPointerDown={e => { e.preventDefault(); e.stopPropagation() }}
           onClick={() => insertAtCursor(value)}
           className="flex-1 h-11 rounded-xl bg-background text-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
         >
@@ -95,7 +95,7 @@ export function MathKeybar() {
       ))}
       <button
         tabIndex={-1}
-        onMouseDown={e => e.preventDefault()}
+        onPointerDown={e => { e.preventDefault(); e.stopPropagation() }}
         onClick={evaluate}
         className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
       >
