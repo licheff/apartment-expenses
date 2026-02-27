@@ -93,7 +93,7 @@ function DialogContent({
           onInteractOutside?.(e)
         }}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-0 right-0 top-0 z-50 grid w-full h-[var(--visual-vh,100dvh)] overflow-y-auto gap-4 p-6 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-0 right-0 top-0 z-50 grid w-full h-[var(--visual-vh,100dvh)] overflow-y-auto gap-4 p-6 pb-20 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:pb-6",
           className
         )}
         style={{

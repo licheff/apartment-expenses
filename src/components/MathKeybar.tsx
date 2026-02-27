@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { evaluateExpression } from '@/lib/constants'
 
@@ -19,20 +19,27 @@ function setNativeInputValue(el: HTMLInputElement, value: string) {
 export function MathKeybar() {
   const [visible, setVisible] = useState(false)
   const [bottom, setBottom] = useState(0)
+  // Track the last focused math input so we don't depend on document.activeElement
+  // (which may shift when a button is tapped)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
-  // Show/hide based on whether a math input is focused
   useEffect(() => {
-    const isMath = (el: Element | null) => el?.hasAttribute('data-math-input') ?? false
-
     const onFocusIn = (e: FocusEvent) => {
-      if (isMath(e.target as Element)) setVisible(true)
+      const el = e.target as HTMLElement
+      if (el.hasAttribute('data-math-input')) {
+        inputRef.current = el as HTMLInputElement
+        setVisible(true)
+      }
     }
 
     const onFocusOut = () => {
-      // Defer so e.preventDefault() on button mousedown has time to keep focus on input
       setTimeout(() => {
-        if (!isMath(document.activeElement)) setVisible(false)
-      }, 0)
+        const active = document.activeElement as HTMLElement | null
+        if (!active?.hasAttribute('data-math-input')) {
+          setVisible(false)
+          inputRef.current = null
+        }
+      }, 100)
     }
 
     document.addEventListener('focusin', onFocusIn)
@@ -59,20 +66,32 @@ export function MathKeybar() {
   }, [])
 
   const insertAtCursor = (char: string) => {
-    const el = document.activeElement as HTMLInputElement | null
-    if (!el?.hasAttribute('data-math-input')) return
+    const el = inputRef.current
+    if (!el) return
     const start = el.selectionStart ?? el.value.length
     const end = el.selectionEnd ?? el.value.length
     const next = el.value.slice(0, start) + char + el.value.slice(end)
     setNativeInputValue(el, next)
+    el.focus()
     requestAnimationFrame(() => el.setSelectionRange(start + 1, start + 1))
   }
 
   const evaluate = () => {
-    const el = document.activeElement as HTMLInputElement | null
-    if (!el?.hasAttribute('data-math-input')) return
+    const el = inputRef.current
+    if (!el) return
     const result = evaluateExpression(el.value)
-    if (result !== false) setNativeInputValue(el, String(result))
+    if (result !== false) {
+      setNativeInputValue(el, String(result))
+      el.focus()
+    }
+  }
+
+  // Prevent the button tap from stealing focus or triggering Radix's
+  // outside-click dismiss. React's e.stopPropagation() only stops synthetic
+  // events — we must stop the NATIVE event to block Radix's document listener.
+  const preventPointerDefault = (e: React.PointerEvent) => {
+    e.preventDefault()
+    e.nativeEvent.stopImmediatePropagation()
   }
 
   if (!visible) return null
@@ -87,8 +106,8 @@ export function MathKeybar() {
         <button
           key={value}
           tabIndex={-1}
-          onPointerDown={e => { e.preventDefault(); e.stopPropagation() }}
-          onClick={() => insertAtCursor(value)}
+          onPointerDown={preventPointerDefault}
+          onPointerUp={() => insertAtCursor(value)}
           className="flex-1 h-11 rounded-xl bg-background text-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
         >
           {label}
@@ -96,8 +115,8 @@ export function MathKeybar() {
       ))}
       <button
         tabIndex={-1}
-        onPointerDown={e => { e.preventDefault(); e.stopPropagation() }}
-        onClick={evaluate}
+        onPointerDown={preventPointerDefault}
+        onPointerUp={evaluate}
         className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-xl font-medium shadow-sm active:scale-95 transition-transform"
       >
         =
