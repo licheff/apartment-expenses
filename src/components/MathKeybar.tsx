@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { evaluateExpression } from '@/lib/constants'
 
 const OPERATORS: { label: string; value: string }[] = [
@@ -76,9 +77,9 @@ export function MathKeybar() {
 
   if (!visible) return null
 
-  return (
+  return createPortal(
     <div
-      className="fixed left-0 right-0 z-50 flex gap-2 px-4 py-3 bg-muted border-t border-border transition-[bottom] duration-100 sm:hidden"
+      className="fixed left-0 right-0 z-[200] flex gap-2 px-4 py-3 bg-muted border-t border-border transition-[bottom] duration-100 sm:hidden"
       style={{ bottom }}
     >
       {OPERATORS.map(({ label, value }) => (
@@ -100,6 +101,7 @@ export function MathKeybar() {
       >
         =
       </button>
-    </div>
+    </div>,
+    document.body
   )
 }
