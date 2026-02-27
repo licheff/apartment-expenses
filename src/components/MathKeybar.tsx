@@ -79,6 +79,7 @@ export function MathKeybar() {
 
   return createPortal(
     <div
+      data-math-keybar=""
       className="fixed left-0 right-0 z-[200] flex gap-2 px-4 py-3 bg-muted border-t border-border transition-[bottom] duration-100 sm:hidden"
       style={{ bottom }}
     >

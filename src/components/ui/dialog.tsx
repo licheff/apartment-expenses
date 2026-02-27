@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useEffect, useState } from "react"
 import { XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
@@ -49,19 +50,44 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onPointerDownOutside,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  // Track visual viewport height so the dialog shrinks when the mobile keyboard opens
+  const [visualVh, setVisualVh] = useState<number | undefined>()
+
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => setVisualVh(vv.height)
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+    }
+  }, [])
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onPointerDownOutside={(e) => {
+          // Don't dismiss the dialog when tapping the MathKeybar
+          const target = e.detail.originalEvent.target as HTMLElement
+          if (target.closest?.('[data-math-keybar]')) {
+            e.preventDefault()
+          }
+          onPointerDownOutside?.(e)
+        }}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed inset-0 z-50 grid w-full h-full overflow-y-auto gap-4 p-6 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-0 right-0 top-0 z-50 grid w-full h-[var(--visual-vh,100dvh)] overflow-y-auto gap-4 p-6 shadow-lg duration-200 outline-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border",
           className
         )}
+        style={visualVh != null ? { '--visual-vh': `${visualVh}px` } as React.CSSProperties : undefined}
         {...props}
       >
         {children}
