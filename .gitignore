@@ -15,6 +15,10 @@ dist-ssr
 # Claude Code working directory
 .claude/
 
+# Planning docs
+*_PLAN.md
+*-plan.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
