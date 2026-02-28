@@ -98,7 +98,7 @@ export function CsvImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle>Импорт от CSV</DialogTitle>
         </DialogHeader>

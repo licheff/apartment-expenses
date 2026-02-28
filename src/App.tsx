@@ -1,8 +1,18 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Plus } from 'lucide-react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { ArrowDownUp, Upload, Download, Settings, Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
+import { Layout } from '@/components/Layout'
 import { Header } from '@/components/Header'
+import { ApartmentTabs } from '@/components/ApartmentTabs'
+import { YearSelector } from '@/components/YearSelector'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { LoginPage } from '@/components/LoginPage'
 import { Button } from '@/components/ui/button'
 import { YearSummaryStrip } from '@/components/YearSummaryStrip'
@@ -15,6 +25,9 @@ import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
 import { YearlyExpensesSection } from '@/components/YearlyExpensesSection'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { OverviewPage } from '@/pages/OverviewPage'
+import { SubscriptionsPage } from '@/pages/SubscriptionsPage'
+
 import { useApartments } from '@/hooks/useApartments'
 import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
@@ -26,7 +39,6 @@ import { useTheme } from '@/hooks/useTheme'
 import { exportToCsv } from '@/lib/csv-exporter'
 import { supabase } from '@/lib/supabase'
 import type { MonthRow } from '@/types'
-import type { Theme } from '@/hooks/useTheme'
 
 function App() {
   const { session, loading: authLoading, signIn, signOut } = useAuth()
@@ -51,21 +63,21 @@ function App() {
 
   return (
     <>
-      <AuthenticatedApp signOut={signOut} theme={theme} setTheme={setTheme} />
+      <Routes>
+        <Route element={<Layout signOut={signOut} theme={theme} onThemeChange={setTheme} />}>
+          <Route index element={<OverviewPage />} />
+          <Route path="/expenses" element={<AuthenticatedApp />} />
+          <Route path="/subscriptions" element={<SubscriptionsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
       <Toaster position="bottom-right" />
     </>
   )
 }
 
-function AuthenticatedApp({
-  signOut,
-  theme,
-  setTheme,
-}: {
-  signOut: () => Promise<void>
-  theme: Theme
-  setTheme: (t: Theme) => void
-}) {
+// Expense tracker view — all expense state lives here
+function AuthenticatedApp() {
   const {
     apartments, categories, loading: aptsLoading,
     addCategory, deleteCategory, toggleCategoryPaidByMe, updateRentAmount,
@@ -260,7 +272,7 @@ function AuthenticatedApp({
     return () => window.removeEventListener('keydown', handler)
   }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen, categoriesDialogOpen])
 
-  // Hide mobile add button on scroll down, show on scroll up or after .8s idle
+  // Hide mobile add button on scroll down, show on scroll up or after idle
   const [showMobileAdd, setShowMobileAdd] = useState(true)
   const lastScrollY = useRef(0)
   const scrollTimer = useRef<ReturnType<typeof setTimeout>>(null)
@@ -277,7 +289,6 @@ function AuthenticatedApp({
       } else {
         setShowMobileAdd(false)
         if (scrollTimer.current) clearTimeout(scrollTimer.current)
-        // Re-show after 2s of no scrolling
         scrollTimer.current = setTimeout(() => setShowMobileAdd(true), 800)
       }
     }
@@ -296,22 +307,57 @@ function AuthenticatedApp({
   const isLoading = aptsLoading || expensesLoading
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header
-        apartments={apartments}
-        selectedApartmentId={selectedApartmentId}
-        onSelectApartment={setSelectedApartmentId}
-        years={years}
-        selectedYear={selectedYear}
-        onSelectYear={setSelectedYear}
-        onImport={() => setImportDialogOpen(true)}
-        onExport={handleExport}
-        onSettings={() => setCategoriesDialogOpen(true)}
-        theme={theme}
-        onThemeChange={setTheme}
-        onSignOut={signOut}
-        onAdd={handleOpenAdd}
-      />
+    <div>
+      <Header>
+        {(apartments.length > 0 || years.length > 0) && (
+          <div className="flex items-center gap-3">
+            {apartments.length > 0 && (
+              <ApartmentTabs
+                apartments={apartments}
+                selected={selectedApartmentId}
+                onSelect={setSelectedApartmentId}
+              />
+            )}
+            {years.length > 0 && (
+              <YearSelector
+                years={years}
+                selected={selectedYear}
+                onSelect={setSelectedYear}
+              />
+            )}
+            <div className="flex items-center gap-1 sm:ml-auto">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Импорт / Експорт">
+                    <ArrowDownUp className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Импорт CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Експорт CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="ghost" size="icon" onClick={() => setCategoriesDialogOpen(true)} title="Категории">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button
+              size="sm"
+              className="hidden sm:inline-flex"
+              onClick={handleOpenAdd}
+            >
+              Добави
+              <kbd className="ml-0 text-[11px] opacity-60 font-sans pt-1">⌘A</kbd>
+            </Button>
+          </div>
+        )}
+      </Header>
 
       <main className="mx-auto px-4 py-6 pb-24 space-y-6 max-w-[1000px]">
         {/* Summary Strip */}
@@ -328,12 +374,11 @@ function AuthenticatedApp({
           />
         )}
 
-
         {/* Chart + Yearly Expenses side by side */}
         {isLoading ? (
           <Skeleton className="h-[320px] rounded-xl" />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <YearComparisonChart
                 currentYear={selectedYear}
@@ -369,9 +414,9 @@ function AuthenticatedApp({
         )}
       </main>
 
-      {/* Mobile-only sticky add button — hides on scroll down */}
+      {/* Mobile-only sticky add button — positioned above the bottom tab bar (bottom-16) */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-10 p-4 sm:hidden transition-transform duration-200 ${
+        className={`fixed bottom-16 left-0 right-0 z-10 p-4 sm:hidden transition-transform duration-200 ${
           showMobileAdd ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -419,7 +464,6 @@ function AuthenticatedApp({
         onTogglePaidByMe={toggleCategoryPaidByMe}
         onUpdateRentAmount={updateRentAmount}
       />
-
     </div>
   )
 }
