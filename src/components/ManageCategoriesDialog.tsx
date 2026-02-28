@@ -70,12 +70,13 @@ export function ManageCategoriesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
-        <DialogHeader className="px-6 pt-6 pb-6 border-b">
+      <DialogContent className="sm:max-w-[450px] p-0 gap-0 overflow-hidden">
+        <DialogHeader>
           <DialogTitle>Настройки</DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6 pb-6">
+        <div className="px-6 py-4 overflow-y-auto max-h-[70vh]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="pb-2">
           <TabsList className="w-full">
             {apartments.map(apt => (
               <TabsTrigger key={apt.id} value={apt.id} className="flex-1">
@@ -183,6 +184,7 @@ export function ManageCategoriesDialog({
             )
           })}
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   )

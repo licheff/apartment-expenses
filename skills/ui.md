@@ -10,6 +10,33 @@
 - Edit/delete always happens inside a modal, never inline
 - Individual expense deletion (by ID) happens inside the edit modal per category row
 
+## Table Wrapper
+
+Always use `<TableContainer>` from `@/components/TableContainer` instead of raw divs:
+
+```tsx
+<TableContainer>          {/* default: rounded-lg border bg-card overflow-hidden */}
+<TableContainer scrollable> {/* for wide tables that need horizontal scroll */}
+```
+
+## Section Card (panel with header)
+
+Use `<SectionCard>` from `@/components/SectionCard` for any panel with a labeled header border:
+
+```tsx
+<SectionCard title="Предстоящи плащания">
+  <UpcomingPaymentsList items={items} />
+</SectionCard>
+
+{/* Pass className for grid positioning */}
+<SectionCard title="..." className="sm:col-span-2">
+```
+
+## Upcoming Payments
+
+Use `<UpcomingPaymentsList>` from `@/components/UpcomingPaymentsList`. Accepts `items: UpcomingItem[]`.
+Use `<DaysBadge>` from `@/components/DaysBadge` for urgency color coding.
+
 ## Badge Conventions
 
 **YoY comparison** (`variant="outline"` with color overrides):
@@ -19,6 +46,8 @@ isDown → 'border-green-600/30 bg-green-500/10 text-green-600 dark:text-green-5
 flat   → 'text-muted-foreground'
 ```
 Spending up = bad (red). Spending down = good (green). Use `ArrowUpRight` / `ArrowDownRight` / `Minus` icons.
+
+**Urgency badges (upcoming payments):** Use `<DaysBadge days={n} />` — handles all variants.
 
 **Status/count badges:** `variant="secondary"` (e.g. rent paid count, category counts).
 

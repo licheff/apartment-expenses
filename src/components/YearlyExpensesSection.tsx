@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -193,14 +195,14 @@ export function YearlyExpensesSection({
         <DialogContent className="sm:max-w-[360px] p-0 gap-0 overflow-hidden">
 
           {/* Header */}
-          <DialogHeader className="px-6 pt-6 pb-6 border-b">
+          <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
               {dialogMode === 'add' ? `Годишен разход` : selectedExp?.name}
             </DialogTitle>
           </DialogHeader>
 
           {/* Content */}
-          <div className="px-6 py-6 flex-1 min-h-0 overflow-y-auto flex flex-col gap-8 items-center">
+          <DialogBody className="flex-1 min-h-0 max-h-none gap-8 items-center">
 
             {/* Amount + currency toggle */}
             <div className="flex flex-col items-center gap-3">
@@ -288,10 +290,10 @@ export function YearlyExpensesSection({
                 />
               </div>
             )}
-          </div>
+          </DialogBody>
 
           {/* Footer */}
-          <div className="px-6 py-6 border-t shrink-0 flex items-center gap-2">
+          <DialogFooter>
             {dialogMode === 'edit' && (
               <Button variant="destructive" onClick={handleDelete} className="mr-auto">
                 Изтрий
@@ -307,7 +309,7 @@ export function YearlyExpensesSection({
             >
               Запази
             </Button>
-          </div>
+          </DialogFooter>
 
         </DialogContent>
       </Dialog>

@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -198,12 +200,12 @@ export function AddExpenseDialog({
       <DialogContent className="sm:max-w-[360px] p-0 gap-0 overflow-hidden">
 
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-6 border-b">
+        <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Добави разход</DialogTitle>
         </DialogHeader>
 
-        {/* Content */}
-        <div className="px-6 py-6 flex-1 min-h-0 overflow-y-auto flex flex-col gap-8 items-center">
+        {/* Content — flex-1 + max-h-none override DialogBody defaults for this special centered layout */}
+        <DialogBody className="flex-1 min-h-0 max-h-none gap-8 items-center">
 
           {/* Amount + currency toggle */}
           <div className="flex flex-col items-center gap-3">
@@ -345,10 +347,10 @@ export function AddExpenseDialog({
               </p>
             )}
           </div>
-        </div>
+        </DialogBody>
 
         {/* Footer */}
-        <div className="px-6 py-6 border-t shrink-0 flex items-center gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отказ
           </Button>
@@ -363,7 +365,7 @@ export function AddExpenseDialog({
                 ? `Запази (${willSaveCount} мес.)`
                 : 'Запази'}
           </Button>
-        </div>
+        </DialogFooter>
 
       </DialogContent>
     </Dialog>

@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import { Pencil, CreditCard, Plus } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,6 +18,10 @@ import { AddSubscriptionDialog } from '@/components/AddSubscriptionDialog'
 import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
 import { ManagePaymentSourcesDialog } from '@/components/ManagePaymentSourcesDialog'
 import { SubscriptionCalendar } from '@/components/SubscriptionCalendar'
+import { DaysBadge } from '@/components/DaysBadge'
+import { SectionCard } from '@/components/SectionCard'
+import { TableContainer } from '@/components/TableContainer'
+import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
 import type { CreateSubscriptionInput, Subscription } from '@/types'
@@ -36,13 +39,6 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function DaysBadge({ days }: { days: number }) {
-  if (days === 0) return <Badge variant="destructive">Днес</Badge>
-  if (days <= 3) return <Badge variant="destructive">след {days} дни</Badge>
-  if (days <= 7) return <Badge variant="secondary">след {days} дни</Badge>
-  return <Badge variant="outline" className="text-muted-foreground">след {days} дни</Badge>
-}
-
 // ─── Subscription table ───────────────────────────────────────────────────────
 
 function SubscriptionTable({
@@ -54,14 +50,14 @@ function SubscriptionTable({
 }) {
   if (subscriptions.length === 0) {
     return (
-      <div className="rounded-lg border bg-card py-12 text-center text-sm text-muted-foreground">
+      <TableContainer className="py-12 text-center text-sm text-muted-foreground">
         Няма абонаменти в тази категория
-      </div>
+      </TableContainer>
     )
   }
 
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
+    <TableContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -113,7 +109,7 @@ function SubscriptionTable({
           })}
         </TableBody>
       </Table>
-    </div>
+    </TableContainer>
   )
 }
 
@@ -122,7 +118,9 @@ function SubscriptionTable({
 function UpcomingPayments({ subscriptions }: { subscriptions: Subscription[] }) {
   const sorted = [...subscriptions]
     .map(sub => ({
-      sub,
+      id: sub.id,
+      name: sub.name,
+      amount: sub.amount,
       days: daysUntilNextPayment(parseLocalDate(sub.start_date), sub.billing_cycle),
       next: nextPaymentDate(parseLocalDate(sub.start_date), sub.billing_cycle),
     }))
@@ -131,36 +129,16 @@ function UpcomingPayments({ subscriptions }: { subscriptions: Subscription[] }) 
 
   if (sorted.length === 0) {
     return (
-      <div className="sm:col-span-2rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">
-        Няма предстоящи плащания
-      </div>
+      <SectionCard title="Предстоящи плащания" className="sm:col-span-2">
+        <p className="py-8 text-center text-sm text-muted-foreground">Няма предстоящи плащания</p>
+      </SectionCard>
     )
   }
 
   return (
-    <div className="sm:col-span-2 rounded-lg border bg-card overflow-hidden">
-      <div className="px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold">Предстоящи плащания</h2>
-      </div>
-      <ul className="divide-y">
-        {sorted.map(({ sub, days, next }) => (
-          <li key={sub.id} className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{sub.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {next.toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="text-sm tabular-nums">{formatCurrency(sub.amount)}</span>
-              <DaysBadge days={days} />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <SectionCard title="Предстоящи плащания" className="sm:col-span-2">
+      <UpcomingPaymentsList items={sorted} />
+    </SectionCard>
   )
 }
 

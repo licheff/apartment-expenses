@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { TableContainer } from '@/components/TableContainer'
 import {
   Table,
   TableBody,
@@ -35,7 +36,7 @@ export function ExpenseTable({
   onToggleRentMonth,
 }: ExpenseTableProps) {
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <TableContainer scrollable>
       <Table>
         <TableHeader>
           <TableRow>
@@ -128,6 +129,6 @@ export function ExpenseTable({
           </TableRow>
         </TableFooter>
       </Table>
-    </div>
+    </TableContainer>
   )
 }

@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom'
 import { Receipt, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SectionCard } from '@/components/SectionCard'
+import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import {
   daysUntilNextPayment,
@@ -12,19 +13,15 @@ import {
 } from '@/lib/subscriptions'
 import { formatCurrency } from '@/lib/constants'
 
-function DaysBadge({ days }: { days: number }) {
-  if (days === 0) return <Badge variant="destructive">Днес</Badge>
-  if (days <= 3) return <Badge variant="destructive">след {days} дни</Badge>
-  if (days <= 7) return <Badge variant="secondary">след {days} дни</Badge>
-  return <Badge variant="outline" className="text-muted-foreground">след {days} дни</Badge>
-}
 
 export function OverviewPage() {
   const { activeSubscriptions, totalPerMonth, totalPerYear, loading } = useSubscriptions()
 
   const upcoming = [...activeSubscriptions]
     .map(sub => ({
-      sub,
+      id: sub.id,
+      name: sub.name,
+      amount: sub.amount,
       days: daysUntilNextPayment(parseLocalDate(sub.start_date), sub.billing_cycle),
       next: nextPaymentDate(parseLocalDate(sub.start_date), sub.billing_cycle),
     }))
@@ -71,27 +68,9 @@ export function OverviewPage() {
       {loading ? (
         <Skeleton className="h-[200px] rounded-xl" />
       ) : upcoming.length > 0 ? (
-        <div className="rounded-lg border bg-card overflow-hidden">
-          <div className="px-4 py-3 border-b">
-            <h2 className="text-sm font-semibold">Предстоящи плащания</h2>
-          </div>
-          <ul className="divide-y">
-            {upcoming.map(({ sub, days, next }) => (
-              <li key={sub.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{sub.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {next.toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-sm tabular-nums">{formatCurrency(sub.amount)}</span>
-                  <DaysBadge days={days} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <SectionCard title="Предстоящи плащания">
+          <UpcomingPaymentsList items={upcoming} />
+        </SectionCard>
       ) : null}
 
       {/* Quick link to Expenses */}
