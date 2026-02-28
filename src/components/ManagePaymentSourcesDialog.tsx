@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -43,11 +45,11 @@ export function ManagePaymentSourcesDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Начини на плащане</DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+        <DialogBody>
           {/* Existing sources */}
           <div className="space-y-2">
             {paymentSources.map(source => (
@@ -88,13 +90,13 @@ export function ManagePaymentSourcesDialog({
               Добави
             </Button>
           </div>
-        </div>
+        </DialogBody>
 
-        <div className="px-6 py-4 border-t flex items-center gap-2">
+        <DialogFooter>
           <Button className="flex-1" onClick={() => onOpenChange(false)}>
             Готово
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -101,12 +103,12 @@ export function EditExpenseDialog({
       <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden">
 
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <DialogHeader>
           <DialogTitle className="text-xl font-semibold">{monthRow.monthName}</DialogTitle>
         </DialogHeader>
 
         {/* Content */}
-        <div className="px-6 py-4 flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 sm:max-h-[60vh]">
+        <DialogBody className="flex-1 min-h-0 max-h-none sm:max-h-[60vh]">
           <MathOperatorButtons />
           {categories.map(cat => {
             const val = amounts[cat.id] ?? ''
@@ -174,17 +176,17 @@ export function EditExpenseDialog({
               </div>
             )
           })}
-        </div>
+        </DialogBody>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t shrink-0 flex items-center gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отказ
           </Button>
           <Button className="flex-1" onClick={handleSave} disabled={saving}>
             {saving ? 'Запазване...' : 'Запази'}
           </Button>
-        </div>
+        </DialogFooter>
 
       </DialogContent>
     </Dialog>

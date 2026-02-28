@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -77,11 +79,11 @@ export function AddSubscriptionDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px] p-0 gap-0 overflow-hidden" aria-describedby={undefined}>
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Нов абонамент</DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+        <DialogBody>
           {/* Name */}
           <div className="grid gap-1.5">
             <Label>Наименование</Label>
@@ -166,14 +168,14 @@ export function AddSubscriptionDialog({
             />
             <Label htmlFor="add-active" className="cursor-pointer">Активен</Label>
           </div>
-        </div>
+        </DialogBody>
 
-        <div className="px-6 py-4 border-t flex items-center gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отказ</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!canSave || saving}>
             Запази
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

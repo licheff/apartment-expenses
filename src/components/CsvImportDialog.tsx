@@ -2,12 +2,14 @@ import { useCallback, useState } from 'react'
 import { Upload } from 'lucide-react'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { TableContainer } from '@/components/TableContainer'
 import {
   Select,
   SelectContent,
@@ -98,12 +100,12 @@ export function CsvImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto p-6">
+      <DialogContent className="sm:max-w-[600px] p-0 gap-0 overflow-hidden">
         <DialogHeader>
           <DialogTitle>Импорт от CSV</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <DialogBody className="max-h-[60vh] grid gap-4">
           {/* File upload */}
           <div>
             <label className="flex items-center gap-2 cursor-pointer rounded-md border border-dashed p-6 hover:bg-muted/50 transition-colors">
@@ -146,7 +148,7 @@ export function CsvImportDialog({
 
           {/* Preview */}
           {parseResult && previewRows.length > 0 && (
-            <div className="overflow-x-auto rounded-md border">
+            <TableContainer scrollable>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -176,11 +178,11 @@ export function CsvImportDialog({
                   )}
                 </TableBody>
               </Table>
-            </div>
+            </TableContainer>
           )}
-        </div>
+        </DialogBody>
 
-        <DialogFooter>
+        <DialogFooter className="justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отказ
           </Button>
