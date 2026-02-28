@@ -106,7 +106,7 @@ export function EditExpenseDialog({
         </DialogHeader>
 
         {/* Content */}
-        <div className="px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+        <div className="px-6 py-4 flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 sm:max-h-[60vh]">
           <MathOperatorButtons />
           {categories.map(cat => {
             const val = amounts[cat.id] ?? ''
@@ -177,7 +177,7 @@ export function EditExpenseDialog({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t flex items-center gap-2">
+        <div className="px-6 py-4 border-t shrink-0 flex items-center gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отказ
           </Button>

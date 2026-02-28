@@ -200,7 +200,7 @@ export function YearlyExpensesSection({
           </DialogHeader>
 
           {/* Content */}
-          <div className="px-6 py-6 flex flex-col gap-8 items-center">
+          <div className="px-6 py-6 flex-1 min-h-0 overflow-y-auto flex flex-col gap-8 items-center">
 
             {/* Amount + currency toggle */}
             <div className="flex flex-col items-center gap-3">
@@ -291,7 +291,7 @@ export function YearlyExpensesSection({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-6 border-t flex items-center gap-2">
+          <div className="px-6 py-6 border-t shrink-0 flex items-center gap-2">
             {dialogMode === 'edit' && (
               <Button variant="destructive" onClick={handleDelete} className="mr-auto">
                 Изтрий
