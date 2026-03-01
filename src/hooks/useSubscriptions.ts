@@ -59,12 +59,11 @@ export function useSubscriptions() {
     return update(id, { is_active: isActive })
   }
 
-  // Derived values — computed from active subscriptions only
+  // Derived values — computed from active, non-rebate subscriptions only
   const activeSubscriptions = subscriptions.filter(s => s.is_active)
-  const totalPerMonth = activeSubscriptions.reduce(
-    (sum, s) => sum + monthlyEquivalent(s.amount, s.billing_cycle),
-    0,
-  )
+  const totalPerMonth = activeSubscriptions
+    .filter(s => !s.is_rebate)
+    .reduce((sum, s) => sum + monthlyEquivalent(s.amount, s.billing_cycle), 0)
   const totalPerYear = totalPerMonth * 12
 
   return {

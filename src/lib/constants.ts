@@ -44,6 +44,7 @@ export const BG_MONTH_TO_NUMBER: Record<string, number> = {
 }
 
 export const BGN_TO_EUR_RATE = 1.95583
+export const USD_TO_EUR_RATE = 0.92
 
 /**
  * Validates and sanitizes amount input.
@@ -107,6 +108,14 @@ export function convertBgnToEur(bgn: number): number {
 
 export function convertEurToBgn(eur: number): number {
   return eur * BGN_TO_EUR_RATE
+}
+
+export function convertUsdToEur(usd: number): number {
+  return usd * USD_TO_EUR_RATE
+}
+
+export function convertEurToUsd(eur: number): number {
+  return eur / USD_TO_EUR_RATE
 }
 
 export function formatAmountInput(raw: string): string {

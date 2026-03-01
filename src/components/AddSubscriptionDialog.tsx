@@ -18,8 +18,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { BillingCycle, CreateSubscriptionInput, PaymentSource } from '@/types'
 import { cycleLabelBg } from '@/lib/subscriptions'
+import { convertUsdToEur } from '@/lib/constants'
+
+type Currency = 'EUR' | 'USD'
 
 const BILLING_CYCLES: BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'bi_annual', 'yearly']
 
@@ -43,11 +47,13 @@ export function AddSubscriptionDialog({
 }: AddSubscriptionDialogProps) {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
+  const [currency, setCurrency] = useState<Currency>('EUR')
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [sourceId, setSourceId] = useState<string>('__none__')
   const [startDate, setStartDate] = useState(todayStr)
   const [notes, setNotes] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [isRebate, setIsRebate] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const canSave = name.trim() && Number(amount) > 0 && startDate
@@ -55,24 +61,29 @@ export function AddSubscriptionDialog({
   const handleSave = async () => {
     if (!canSave) return
     setSaving(true)
+    const rawAmount = Number(amount)
+    const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
     await onSave({
       name: name.trim(),
-      amount: Number(amount),
+      amount: eurAmount,
       billing_cycle: cycle,
       payment_source_id: sourceId === '__none__' ? null : sourceId,
       start_date: startDate,
       is_active: isActive,
+      is_rebate: isRebate,
       notes: notes.trim() || null,
     })
     setSaving(false)
     // Reset form
     setName('')
     setAmount('')
+    setCurrency('EUR')
     setCycle('monthly')
     setSourceId('__none__')
     setStartDate(todayStr())
     setNotes('')
     setIsActive(true)
+    setIsRebate(false)
     onOpenChange(false)
   }
 
@@ -98,7 +109,10 @@ export function AddSubscriptionDialog({
           {/* Amount + Cycle */}
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label>Сума (€)</Label>
+              <div className="flex items-center justify-between">
+                <Label>Сума</Label>
+                <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} currencies={['EUR', 'USD']} />
+              </div>
               <Input
                 type="number"
                 step="0.01"
@@ -107,6 +121,11 @@ export function AddSubscriptionDialog({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />
+              {currency === 'USD' && amount && Number(amount) > 0 && (
+                <p className="text-xs text-muted-foreground -mt-1">
+                  ≈ {convertUsdToEur(Number(amount)).toFixed(2)} €
+                </p>
+              )}
             </div>
             <div className="grid gap-1.5">
               <Label>Периодичност</Label>
@@ -159,14 +178,25 @@ export function AddSubscriptionDialog({
             />
           </div>
 
-          {/* Active toggle */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="add-active"
-              checked={isActive}
-              onCheckedChange={v => setIsActive(v === true)}
-            />
-            <Label htmlFor="add-active" className="cursor-pointer">Активен</Label>
+          {/* Toggles */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="add-active"
+                checked={isActive}
+                onCheckedChange={v => setIsActive(v === true)}
+              />
+              <Label htmlFor="add-active" className="cursor-pointer">Активен</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="add-rebate"
+                checked={isRebate}
+                onCheckedChange={v => setIsRebate(v === true)}
+              />
+              <Label htmlFor="add-rebate" className="cursor-pointer">Rebate</Label>
+              <span className="text-xs text-muted-foreground">— не се брои в общите суми</span>
+            </div>
           </div>
         </DialogBody>
 

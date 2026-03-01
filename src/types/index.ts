@@ -74,6 +74,7 @@ export interface Subscription {
   payment_source?: PaymentSource | null  // from Supabase join
   start_date: string           // "YYYY-MM-DD" — billing anchor date
   is_active: boolean
+  is_rebate: boolean           // excluded from totals when true
   notes: string | null
   created_at: string
   updated_at: string
@@ -86,6 +87,7 @@ export interface CreateSubscriptionInput {
   payment_source_id: string | null
   start_date: string
   is_active: boolean
+  is_rebate: boolean
   notes: string | null
 }
 

@@ -148,7 +148,7 @@ export function EditExpenseDialog({
                       <CurrencyToggle
                         value={cur}
                         onChange={c => {
-                          setCurrencies(prev => ({ ...prev, [cat.id]: c }))
+                          setCurrencies(prev => ({ ...prev, [cat.id]: c as Currency }))
                           const num = Number(val)
                           if (val && num > 0) {
                             const converted = c === 'BGN'

@@ -32,6 +32,7 @@ import {
   parseLocalDate,
 } from '@/lib/subscriptions'
 import { formatCurrency } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -76,8 +77,8 @@ function SubscriptionTable({
             const days = daysUntilNextPayment(start, sub.billing_cycle)
 
             return (
-              <TableRow key={sub.id} className="cursor-pointer" onClick={() => onEdit(sub)}>
-                <TableCell className="font-medium">{sub.name}</TableCell>
+              <TableRow key={sub.id} className={cn('cursor-pointer', sub.is_rebate && 'text-muted-foreground')} onClick={() => onEdit(sub)}>
+                <TableCell className={cn('font-medium', sub.is_rebate && 'italic')}>{sub.name}</TableCell>
                 <TableCell className="tabular-nums">
                   {formatCurrency(sub.amount)}
                 </TableCell>
