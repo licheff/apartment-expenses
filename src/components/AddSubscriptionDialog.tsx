@@ -83,7 +83,7 @@ export function AddSubscriptionDialog({
           <DialogTitle className="text-xl font-semibold">Нов абонамент</DialogTitle>
         </DialogHeader>
 
-        <DialogBody>
+        <DialogBody className="flex-1 min-h-0 max-h-none">
           {/* Name */}
           <div className="grid gap-1.5">
             <Label>Наименование</Label>
@@ -125,7 +125,7 @@ export function AddSubscriptionDialog({
 
           {/* Start date */}
           <div className="grid gap-1.5">
-            <Label>Дата на първо плащане</Label>
+            <Label>Следващо плащане</Label>
             <Input
               type="date"
               value={startDate}
