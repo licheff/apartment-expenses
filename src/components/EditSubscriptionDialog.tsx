@@ -18,8 +18,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { CurrencyToggle } from '@/components/CurrencyToggle'
 import type { BillingCycle, CreateSubscriptionInput, PaymentSource, Subscription } from '@/types'
 import { cycleLabelBg } from '@/lib/subscriptions'
+import { convertUsdToEur } from '@/lib/constants'
+
+type Currency = 'EUR' | 'USD'
 
 const BILLING_CYCLES: BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'bi_annual', 'yearly']
 
@@ -42,11 +46,13 @@ export function EditSubscriptionDialog({
 }: EditSubscriptionDialogProps) {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
+  const [currency, setCurrency] = useState<Currency>('EUR')
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [sourceId, setSourceId] = useState<string>('__none__')
   const [startDate, setStartDate] = useState('')
   const [notes, setNotes] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [isRebate, setIsRebate] = useState(false)
   const [saving, setSaving] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
@@ -55,11 +61,13 @@ export function EditSubscriptionDialog({
     if (subscription) {
       setName(subscription.name)
       setAmount(String(subscription.amount))
+      setCurrency('EUR') // stored value is always EUR
       setCycle(subscription.billing_cycle)
       setSourceId(subscription.payment_source_id ?? '__none__')
       setStartDate(subscription.start_date)
       setNotes(subscription.notes ?? '')
       setIsActive(subscription.is_active)
+      setIsRebate(subscription.is_rebate)
       setConfirming(false)
     }
   }, [subscription])
@@ -69,13 +77,16 @@ export function EditSubscriptionDialog({
   const handleSave = async () => {
     if (!canSave || !subscription) return
     setSaving(true)
+    const rawAmount = Number(amount)
+    const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
     await onSave(subscription.id, {
       name: name.trim(),
-      amount: Number(amount),
+      amount: eurAmount,
       billing_cycle: cycle,
       payment_source_id: sourceId === '__none__' ? null : sourceId,
       start_date: startDate,
       is_active: isActive,
+      is_rebate: isRebate,
       notes: notes.trim() || null,
     })
     setSaving(false)
@@ -99,7 +110,7 @@ export function EditSubscriptionDialog({
           <DialogTitle className="text-xl font-semibold">Редактирай абонамент</DialogTitle>
         </DialogHeader>
 
-        <DialogBody>
+        <DialogBody className="flex-1 min-h-0 max-h-none">
           {/* Name */}
           <div className="grid gap-1.5">
             <Label>Наименование</Label>
@@ -113,7 +124,10 @@ export function EditSubscriptionDialog({
           {/* Amount + Cycle */}
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label>Сума (€)</Label>
+              <div className="flex items-center justify-between">
+                <Label>Сума</Label>
+                <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} currencies={['EUR', 'USD']} />
+              </div>
               <Input
                 type="number"
                 step="0.01"
@@ -122,6 +136,11 @@ export function EditSubscriptionDialog({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />
+              {currency === 'USD' && amount && Number(amount) > 0 && (
+                <p className="text-xs text-muted-foreground -mt-1">
+                  ≈ {convertUsdToEur(Number(amount)).toFixed(2)} €
+                </p>
+              )}
             </div>
             <div className="grid gap-1.5">
               <Label>Периодичност</Label>
@@ -140,7 +159,7 @@ export function EditSubscriptionDialog({
 
           {/* Start date */}
           <div className="grid gap-1.5">
-            <Label>Дата на първо плащане</Label>
+            <Label>Следващо плащане</Label>
             <Input
               type="date"
               value={startDate}
@@ -174,14 +193,25 @@ export function EditSubscriptionDialog({
             />
           </div>
 
-          {/* Active toggle */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="edit-active"
-              checked={isActive}
-              onCheckedChange={v => setIsActive(v === true)}
-            />
-            <Label htmlFor="edit-active" className="cursor-pointer">Активен</Label>
+          {/* Toggles */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="edit-active"
+                checked={isActive}
+                onCheckedChange={v => setIsActive(v === true)}
+              />
+              <Label htmlFor="edit-active" className="cursor-pointer">Активен</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="edit-rebate"
+                checked={isRebate}
+                onCheckedChange={v => setIsRebate(v === true)}
+              />
+              <Label htmlFor="edit-rebate" className="cursor-pointer">Rebate</Label>
+              <span className="text-xs text-muted-foreground">— не се брои в общите суми</span>
+            </div>
           </div>
         </DialogBody>
 

@@ -276,7 +276,7 @@ export function AddExpenseDialog({
                 {currencySymbol}
               </span>
             </div>
-            <CurrencyToggle value={currency} onChange={setCurrency} />
+            <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} />
             {currency === 'BGN' && amount && !isExpression && (
               <p className="text-xs text-muted-foreground -mt-1">
                 ≈ {convertBgnToEur(Number(amount)).toFixed(2)} €

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Pencil, CreditCard, Plus } from 'lucide-react'
+import { ChevronRight, CreditCard, Plus } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -32,6 +32,7 @@ import {
   parseLocalDate,
 } from '@/lib/subscriptions'
 import { formatCurrency } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -76,8 +77,8 @@ function SubscriptionTable({
             const days = daysUntilNextPayment(start, sub.billing_cycle)
 
             return (
-              <TableRow key={sub.id}>
-                <TableCell className="font-medium">{sub.name}</TableCell>
+              <TableRow key={sub.id} className={cn('cursor-pointer', sub.is_rebate && 'text-muted-foreground')} onClick={() => onEdit(sub)}>
+                <TableCell className={cn('font-medium', sub.is_rebate && 'italic')}>{sub.name}</TableCell>
                 <TableCell className="tabular-nums">
                   {formatCurrency(sub.amount)}
                 </TableCell>
@@ -94,15 +95,7 @@ function SubscriptionTable({
                   {sub.payment_source?.name ?? '—'}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => onEdit(sub)}
-                    title="Редактирай"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </TableCell>
               </TableRow>
             )
@@ -259,7 +252,7 @@ export function SubscriptionsPage() {
         </>
       }
     />
-    <div className="mx-auto max-w-[1000px] px-4 py-6 space-y-6">
+    <div className="mx-auto max-w-[1000px] px-4 pt-6 pb-12 sm:pb-6 space-y-6">
       {/* Stats strip */}
       {loading ? (
         <Skeleton className="h-[80px] rounded-xl" />

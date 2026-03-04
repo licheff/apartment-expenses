@@ -18,6 +18,8 @@
 | `formatAmountInput(raw)` | `"1 234"` | Thousands separator on raw input string |
 | `convertBgnToEur(n)` | number | Before saving BGN input |
 | `convertEurToBgn(n)` | number | When switching toggle to BGN display |
+| `convertUsdToEur(n)` | number | Before saving USD input |
+| `convertEurToUsd(n)` | number | When switching toggle to USD display |
 
 Thousands separator is a **non-breaking space** (`\u00A0`) — don't replace it with a regular space.
 
@@ -32,8 +34,18 @@ setAmount(converted.toFixed(2))
 const euroAmount = currency === 'BGN' ? convertBgnToEur(raw) : raw
 ```
 
+## USD Toggle Pattern (Subscriptions)
+
+USD rate (`0.92`) is a manually-set fixed rate in `constants.ts`. Same storage rule: convert to EUR before saving.
+
+```tsx
+const euroAmount = currency === 'USD' ? convertUsdToEur(raw) : raw
+```
+
+`CurrencyToggle` accepts a `currencies` prop — pass `['EUR', 'USD']` for subscription dialogs.
+
 ## Anti-patterns
 
-- Don't store BGN in the database
-- Don't hardcode `1.95583` — import it from constants
-- Don't show BGN amounts in summary cards or charts
+- Don't store BGN or USD in the database
+- Don't hardcode `1.95583` or `0.92` — import from constants
+- Don't show non-EUR amounts in summary cards or charts
