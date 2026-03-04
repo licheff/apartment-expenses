@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AddSubscriptionDialog } from '@/components/AddSubscriptionDialog'
 import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
 import { ManagePaymentSourcesDialog } from '@/components/ManagePaymentSourcesDialog'
@@ -62,6 +63,7 @@ function SubscriptionTable({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12" />
             <TableHead>Наименование</TableHead>
             <TableHead>Сума</TableHead>
             <TableHead className="hidden sm:table-cell">Периодичност</TableHead>
@@ -78,6 +80,12 @@ function SubscriptionTable({
 
             return (
               <TableRow key={sub.id} className={cn('cursor-pointer', sub.is_rebate && 'text-muted-foreground')} onClick={() => onEdit(sub)}>
+                <TableCell>
+                  <Avatar size="md">
+                    {sub.icon_url && <AvatarImage src={sub.icon_url} />}
+                    <AvatarFallback>{sub.name[0]?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
                 <TableCell className={cn('font-medium', sub.is_rebate && 'italic')}>{sub.name}</TableCell>
                 <TableCell className="tabular-nums">
                   {formatCurrency(sub.amount)}
@@ -114,6 +122,7 @@ function UpcomingPayments({ subscriptions }: { subscriptions: Subscription[] }) 
       id: sub.id,
       name: sub.name,
       amount: sub.amount,
+      icon_url: sub.icon_url,
       days: daysUntilNextPayment(parseLocalDate(sub.start_date), sub.billing_cycle),
       next: nextPaymentDate(parseLocalDate(sub.start_date), sub.billing_cycle),
     }))

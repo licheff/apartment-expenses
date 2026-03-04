@@ -22,6 +22,7 @@ export function OverviewPage() {
       id: sub.id,
       name: sub.name,
       amount: sub.amount,
+      icon_url: sub.icon_url,
       days: daysUntilNextPayment(parseLocalDate(sub.start_date), sub.billing_cycle),
       next: nextPaymentDate(parseLocalDate(sub.start_date), sub.billing_cycle),
     }))

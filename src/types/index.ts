@@ -76,6 +76,7 @@ export interface Subscription {
   is_active: boolean
   is_rebate: boolean           // excluded from totals when true
   notes: string | null
+  icon_url: string | null      // Supabase Storage public URL for SVG icon
   created_at: string
   updated_at: string
 }
@@ -89,6 +90,7 @@ export interface CreateSubscriptionInput {
   is_active: boolean
   is_rebate: boolean
   notes: string | null
+  icon_url: string | null
 }
 
 // ─── Expense summary ─────────────────────────────────────────────────────────

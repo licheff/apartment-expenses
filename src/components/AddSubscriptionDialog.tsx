@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogBody,
@@ -19,9 +20,11 @@ import {
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
+import { IconUpload } from '@/components/IconUpload'
 import type { BillingCycle, CreateSubscriptionInput, PaymentSource } from '@/types'
 import { cycleLabelBg } from '@/lib/subscriptions'
 import { convertUsdToEur } from '@/lib/constants'
+import { uploadSubscriptionIcon } from '@/lib/storage'
 
 type Currency = 'EUR' | 'USD'
 
@@ -54,6 +57,7 @@ export function AddSubscriptionDialog({
   const [notes, setNotes] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [isRebate, setIsRebate] = useState(false)
+  const [iconFile, setIconFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
   const canSave = name.trim() && Number(amount) > 0 && startDate
@@ -61,18 +65,32 @@ export function AddSubscriptionDialog({
   const handleSave = async () => {
     if (!canSave) return
     setSaving(true)
-    const rawAmount = Number(amount)
-    const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
-    await onSave({
-      name: name.trim(),
-      amount: eurAmount,
-      billing_cycle: cycle,
-      payment_source_id: sourceId === '__none__' ? null : sourceId,
-      start_date: startDate,
-      is_active: isActive,
-      is_rebate: isRebate,
-      notes: notes.trim() || null,
-    })
+    try {
+      const rawAmount = Number(amount)
+      const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
+
+      // Upload icon first (if selected) — get the public URL before inserting the row
+      let icon_url: string | null = null
+      if (iconFile) {
+        icon_url = await uploadSubscriptionIcon(iconFile)
+      }
+
+      await onSave({
+        name: name.trim(),
+        amount: eurAmount,
+        billing_cycle: cycle,
+        payment_source_id: sourceId === '__none__' ? null : sourceId,
+        start_date: startDate,
+        is_active: isActive,
+        is_rebate: isRebate,
+        notes: notes.trim() || null,
+        icon_url,
+      })
+    } catch {
+      toast.error('Грешка при качване на иконата')
+      setSaving(false)
+      return
+    }
     setSaving(false)
     // Reset form
     setName('')
@@ -84,6 +102,7 @@ export function AddSubscriptionDialog({
     setNotes('')
     setIsActive(true)
     setIsRebate(false)
+    setIconFile(null)
     onOpenChange(false)
   }
 
@@ -95,6 +114,14 @@ export function AddSubscriptionDialog({
         </DialogHeader>
 
         <DialogBody className="flex-1 min-h-0 max-h-none">
+          {/* Icon upload */}
+          <IconUpload
+            name={name}
+            currentUrl={null}
+            selectedFile={iconFile}
+            onSelect={setIconFile}
+          />
+
           {/* Name */}
           <div className="grid gap-1.5">
             <Label>Наименование</Label>

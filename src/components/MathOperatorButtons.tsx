@@ -19,6 +19,12 @@ export function MathOperatorButtons() {
 
   // Track whichever [data-math-input] was last focused
   useEffect(() => {
+    // Catch any input that gained focus before this listener was set up (e.g. via autoFocus)
+    const active = document.activeElement
+    if (active instanceof HTMLInputElement && active.hasAttribute('data-math-input')) {
+      inputRef.current = active
+    }
+
     const onFocusIn = (e: FocusEvent) => {
       if ((e.target as HTMLElement).hasAttribute?.('data-math-input')) {
         inputRef.current = e.target as HTMLInputElement

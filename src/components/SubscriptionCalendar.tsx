@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MONTH_NAMES } from '@/lib/constants'
 import { parseLocalDate, paymentDatesInMonth } from '@/lib/subscriptions'
 import { formatCurrency } from '@/lib/constants'
@@ -134,17 +135,20 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                 {day}
               </span>
 
-              {/* Up to 3 dots */}
+              {/* Up to 3 subscription icons (or colored fallback dots) */}
               {hasSubs && (
                 <div className="flex gap-0.5">
                   {subs.slice(0, 3).map(sub => (
-                    <span
-                      key={sub.id}
-                      className={`h-1.5 w-1.5 rounded-full ${colorMap.get(sub.id)}`}
-                    />
+                    <Avatar key={sub.id} size="sm">
+                      {sub.icon_url && <AvatarImage src={sub.icon_url} />}
+                      {/* Fallback keeps the original per-subscription accent color */}
+                      <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
+                        {sub.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
                   ))}
                   {subs.length > 3 && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                    <span className="h-4 w-4 rounded-full bg-muted-foreground" />
                   )}
                 </div>
               )}
@@ -166,7 +170,12 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
               {selectedSubs.map(sub => (
                 <li key={sub.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full shrink-0 ${colorMap.get(sub.id)}`} />
+                    <Avatar size="sm">
+                      {sub.icon_url && <AvatarImage src={sub.icon_url} />}
+                      <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
+                        {sub.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm">{sub.name}</span>
                   </div>
                   <span className="text-sm tabular-nums text-muted-foreground">
