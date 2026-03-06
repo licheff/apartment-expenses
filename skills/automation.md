@@ -1,51 +1,55 @@
 # skills/automation.md
 
-**Purpose:** How the bill parsing pipeline works and how to extend it.
+**Purpose:** How the ePay.bg bill parsing pipeline works and how to extend it.
 
 ## Architecture
 
 ```
-Gmail → Google Apps Script (monthly, 1st of month)
-  → OCR parses PDF bill
+Gmail (ntf@epay.bg) → Google Apps Script (daily, 9am)
+  → parse plain text: merchant + EUR amount
   → INSERT into bills table
   → Supabase trigger sync_bill_to_expense()
-  → UPSERT into expenses table
+  → UPSERT into expenses table (−1 month offset)
 ```
 
 ## Adding a New Automated Provider
 
-Only requires a database INSERT — no app code changes:
+Only requires a database INSERT — no script changes:
 
 ```sql
-INSERT INTO providers (location_id, name, email_sender, email_subject, parse_keyword, currency, category_id)
-VALUES (
-  'a0000000-0000-0000-0000-000000000001',  -- Драгалевци
-  'Provider Name',
-  'billing@provider.bg',
-  'Your Invoice',
-  'TOTAL DUE',     -- text in PDF before the amount
-  'EUR',
-  '<category_uuid>'
-);
+INSERT INTO providers (apartment_id, category_id, name, epay_merchant)
+SELECT '<apartment_uuid>', id, 'Provider Name', 'ePay Merchant Name'
+FROM categories
+WHERE apartment_id = '<apartment_uuid>' AND name = '<category_name>';
 ```
 
-`providers.category_id` is the only mapping needed — the trigger reads it to write to `expenses`.
+`epay_merchant` must match the merchant name exactly as it appears in the ePay.bg email.
 
-## Current Mappings (Драгалевци)
+## Current Providers
 
-| Provider | Category | category_id |
-|----------|----------|-------------|
-| Софийска вода | Вода | `e611ecae-9c91-4146-acce-4c6fc65fa2b6` |
-| Електрохолд | Ток | `79d13f35-959b-45d5-b81f-19f404340d2c` |
+| ePay merchant | Category | Apartment |
+|--------------|----------|-----------|
+| Софийска вода | Вода | Драгалевци |
+| Софиягаз | Газ | Драгалевци |
+| Електрохолд | Ток | Драгалевци |
+| ВиК Пловдив | Вода | 142 |
 
-Location `a0000000-0000-0000-0000-000000000001` = Драгалевци. Location 142 has no automated providers yet.
+**Not automated:** ЕВН България (Ток, 142) — bill combines two locations.
+
+## Deduplication
+
+Two layers prevent double-processing:
+1. Gmail label `BillsProcessed` — script skips labeled threads
+2. `bills.gmail_message_id` UNIQUE constraint — DB rejects duplicates
 
 ## Debugging
 
-- `testManual()` in Apps Script — processes all providers regardless of schedule
-- `debugExtraction()` — logs OCR text around keywords
+- `testManual()` in Apps Script — processes all unprocessed emails immediately
+- Check Apps Script execution log for `✓` (success) and `✗` (error) entries
+- Unknown merchants log as "Unknown merchant in: ..." — add the provider to fix
 
 ## Anti-patterns
 
-- Don't edit the Google Apps Script to add providers — use the `providers` table
-- Don't forget the `-1 month` offset when manually inserting into `bills`
+- Don't hardcode category UUIDs — use a subquery to look up by name + apartment
+- Don't forget the −1 month offset when manually inserting into `bills`
+- Don't edit the script to add providers — use the `providers` table

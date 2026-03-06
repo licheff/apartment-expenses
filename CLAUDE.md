@@ -87,10 +87,9 @@ Each hook: fetches on mount → exposes mutation functions → refetches after m
 - `rent_payments` — id, apartment_id, year, month
 - `yearly_expenses` — id, apartment_id, year, name, amount
 
-**Automation tables (bill parsing pipeline):**
-- `locations` — id, name, address (maps to apartments; Драгалевци = `a0000000-0000-0000-0000-000000000001`)
-- `providers` — id, location_id, name, email_sender, parse_keyword, category_id (FK → categories)
-- `bills` — id, provider_id, location_id, amount, bill_date, gmail_message_id
+**Automation tables (ePay.bg bill parsing):**
+- `providers` — id, apartment_id, category_id, name, epay_merchant, is_active
+- `bills` — id, provider_id, amount, bill_date, gmail_message_id
 - Trigger `sync_bill_to_expense()` on `bills` auto-upserts into `expenses` (with −1 month offset)
 
 ### Environment

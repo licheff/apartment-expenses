@@ -1,128 +1,100 @@
-# Utility Bill Automation — Handoff
+# Utility Bill Automation — ePay.bg
 
 ## Overview
-We built an automated system that parses utility bills from Gmail and stores them in Supabase. This document summarizes everything for integration with the existing expense tracking app.
+Automated system that parses ePay.bg notification emails from Gmail and stores them as expenses in Supabase.
 
 ## Architecture
 
 ```
-Gmail Inbox
-    ↓ (monthly Google Apps Script trigger)
-Google Apps Script (OCR + parse PDF)
+Gmail Inbox (ePay.bg notifications)
+    ↓ (daily Google Apps Script trigger, 9am)
+Google Apps Script (plain text parse)
     ↓ (HTTP POST via service_role key)
-Supabase (locations, providers, bills tables)
-    ↓ (query from app)
-React App (display)
+Supabase `bills` table
+    ↓ (INSERT trigger)
+sync_bill_to_expense() → UPSERT into `expenses` (−1 month offset)
 ```
 
-## Supabase Tables Created
+## Email Format
 
-### `locations`
-Tracks physical properties/apartments.
+ePay.bg sends one email per bill from `ntf@epay.bg`. The body contains a plain-text table:
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID (PK) | |
-| name | TEXT | e.g. "Драгалевци" |
-| address | TEXT | Full address (optional) |
-| is_active | BOOLEAN | Default true |
-| created_at | TIMESTAMPTZ | |
+```
+Търговец              Абонатен номер        Сума
+-------------------------------------------------------------
+Софийска вода         Вода Драгалевци       11.35 EUR (22.20 BGN)
+```
 
-**Current data:**
-- `Драгалевци` (id: `a0000000-0000-0000-0000-000000000001`) — кв. Драгалевци, Ул. Ненко Балкански No.1, Вх.Б, Ет:1, Ап:Б4, 1415, ВИТОША, гр.СОФИЯ
+The script parses the first data line after the `---` separator, extracts the EUR amount, and matches the merchant name against `providers.epay_merchant`.
+
+## Supabase Tables
 
 ### `providers`
-One row per utility company per location. Stores email matching rules and parsing config.
+Maps ePay merchant names to expense categories. One row per utility company.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID (PK) | |
-| location_id | UUID (FK → locations) | Which property this provider serves |
-| name | TEXT | e.g. "Софийска вода" |
-| email_sender | TEXT | Gmail `from:` filter |
-| email_subject | TEXT | Gmail `subject:` filter (prefix match) |
-| parse_keyword | TEXT | Text to search for in PDF before the amount |
-| currency | TEXT | e.g. "EUR", "BGN" |
-| schedule_day | INTEGER | Day of month the script trigger runs |
+| apartment_id | UUID (FK → apartments) | |
+| category_id | UUID (FK → categories) | Target expense category |
+| name | TEXT | Display name |
+| epay_merchant | TEXT | Merchant name as it appears in ePay emails |
 | is_active | BOOLEAN | Default true |
-| created_at | TIMESTAMPTZ | |
-| updated_at | TIMESTAMPTZ | Auto-updated via trigger |
 
-**Current data:**
+**Current providers:**
 
-| Name | Location | email_sender | parse_keyword | Currency |
-|------|----------|-------------|---------------|----------|
-| Софийска вода | Драгалевци | E-faktura@invoice.sofiyskavoda.bg | ОБЩА ДЪЛЖИМА СУМА | EUR |
-| Електрохолд | Драгалевци | info@invoices.electrohold.bg | Обща стойност на сделката | EUR |
+| Name | ePay merchant | Category | Apartment |
+|------|--------------|----------|-----------|
+| Софийска вода | Софийска вода | Вода | Драгалевци |
+| Софиягаз | Софиягаз | Газ | Драгалевци |
+| Електрохолд | Електрохолд | Ток | Драгалевци |
+| ВиК Пловдив | ВиК Пловдив | Вода | 142 |
 
 ### `bills`
-One row per parsed bill. Populated automatically by the Google Apps Script.
+One row per parsed email. Populated by the Google Apps Script.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID (PK) | |
 | provider_id | UUID (FK → providers) | |
-| location_id | UUID (FK → locations) | |
-| amount | NUMERIC(10,2) | e.g. 108.84 |
-| currency | TEXT | e.g. "EUR" |
+| amount | NUMERIC(10,2) | EUR amount from email |
 | bill_date | DATE | Date the email was received |
-| email_date | TIMESTAMPTZ | Exact email timestamp |
-| gmail_message_id | TEXT | Unique, prevents duplicates |
-| created_at | TIMESTAMPTZ | |
+| gmail_message_id | TEXT | Unique — prevents duplicate processing |
 
-**Current data:**
-
-| Provider | Amount | Currency | Date |
-|----------|--------|----------|------|
-| Софийска вода | 11.35 | EUR | 2026-02-11 |
-| Електрохолд | 108.84 | EUR | 2026-02-20 |
+### `sync_bill_to_expense()` trigger
+On INSERT into `bills`, upserts into `expenses` with −1 month offset (bills arrive ~1 month after consumption).
 
 ## Google Apps Script
 
-**Location:** Google Apps Script project (separate from the React app)
+**Location:** `scripts/epay-bills.gs` (reference copy); runs in a Google Apps Script project.
 
-**Script Properties (configured):**
+**Script Properties:**
 - `SUPABASE_URL` — project URL
-- `SUPABASE_SERVICE_KEY` — legacy service_role key
+- `SUPABASE_SERVICE_KEY` — service_role key
 
 **How it works:**
-1. Runs monthly (trigger set for 1st of month at 10am Sofia time)
-2. Fetches active providers from Supabase
-3. For each provider, searches Gmail by `from:` + `subject:` + `newer_than:35d`
-4. Extracts PDF attachment → uploads to Google Drive as Google Doc (OCR with Bulgarian language)
-5. Searches OCR text for `parse_keyword`, then extracts the first number with 2 decimal places after it (preferring amounts followed by €/евро/EUR)
-6. POSTs bill to Supabase `bills` table
-7. Labels processed emails with `BillsProcessed` in Gmail
-8. Duplicate prevention via unique `gmail_message_id`
+1. Runs daily at 9am Sofia time
+2. Searches Gmail: `from:ntf@epay.bg subject:"Чакащи задължения в ePay.bg" -label:BillsProcessed`
+3. Parses plain text body — extracts merchant name + EUR amount
+4. Matches merchant against `providers.epay_merchant`
+5. Inserts into `bills` table (dedup via unique `gmail_message_id`)
+6. Labels processed threads with `BillsProcessed`
 
 **Key functions:**
-- `testManual()` — processes all providers regardless of schedule (for testing)
-- `setupMonthlyTriggers()` — creates monthly trigger on the 1st
-- `setupCustomTrigger(day)` — creates trigger for a specific day
-- `debugExtraction()` — logs OCR text around keywords (for debugging parsing)
+- `setupDailyTrigger()` — creates the daily 9am trigger (run once)
+- `testManual()` — processes all unprocessed emails immediately
 
-## RLS Policies
-- All tables have RLS enabled
-- `authenticated` users have full access
-- `service_role` can insert into `bills` (used by Google Apps Script)
+## Adding a New Provider
 
-## Integration Notes
+Just insert into the `providers` table — no script changes needed:
 
-### What the React app needs to do:
-- Query `bills` joined with `providers` and `locations` to display expense history
-- The `locations` table can serve as the top-level grouping (e.g. tabs or filters by property)
-- `providers.name` gives the expense category (water, electricity, etc.)
+```sql
+INSERT INTO providers (apartment_id, category_id, name, epay_merchant)
+SELECT '<apartment_uuid>', id, 'Provider Name', 'ePay Merchant Name'
+FROM categories
+WHERE apartment_id = '<apartment_uuid>' AND name = '<category_name>';
+```
 
-### Potential schema alignment needed:
-- If the existing app has its own `expenses` or `monthly_expenses` table, we may want to either:
-  - (a) Have the app read directly from `bills` + `providers` + `locations`
-  - (b) Create a view that unions the `bills` table with existing expense data
-  - (c) Migrate existing tables to use the new schema
+## Not Yet Automated
 
-### Second location:
-- A second location exists but no email-based providers are configured for it yet
-- Can be added with a simple INSERT into `locations` and then `providers`
-
-### Adding providers without email automation:
-- Providers can be added for manual entry too — just leave `email_sender` and `email_subject` empty and set `is_active = false` for the automation
-- The app could have a manual entry form that inserts directly into `bills`     
+- **ЕВН България** (Ток, 142) — the bill combines two locations; needs manual entry for now
