@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 const sizes = {
   sm: "size-4 text-[7px]",
   md: "size-8 text-sm",
+  lg: "size-12 text-lg",
 } as const
 
 type AvatarSize = keyof typeof sizes

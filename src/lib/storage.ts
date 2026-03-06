@@ -14,10 +14,7 @@ export async function uploadSubscriptionIcon(file: File): Promise<string> {
     .from(BUCKET)
     .upload(filename, file, { contentType: 'image/svg+xml', upsert: true })
 
-  if (error) {
-    console.error('Storage upload error:', error)
-    throw error
-  }
+  if (error) throw error
 
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(filename)
   return data.publicUrl

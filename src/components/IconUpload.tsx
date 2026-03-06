@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, X } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 
 interface IconUploadProps {
   /** Subscription name — used for the fallback letter in the preview */
@@ -17,7 +16,6 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Create an object URL for the selected file so we can preview it.
-  // The URL is revoked on cleanup to avoid memory leaks.
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   useEffect(() => {
     if (!selectedFile) { setPreviewUrl(null); return }
@@ -27,45 +25,40 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
   }, [selectedFile])
 
   const displayUrl = previewUrl ?? currentUrl ?? undefined
+  const hasImage = !!displayUrl
   const fallback = name?.[0]?.toUpperCase() ?? '?'
 
+  const handleClick = () => {
+    if (hasImage) {
+      // If there's an image, clicking removes it
+      onSelect(null)
+    } else {
+      // No image — open file picker
+      fileRef.current?.click()
+    }
+  }
+
   return (
-    <div className="flex items-center gap-3">
-      {/* Live preview — shows selected file, existing icon, or letter fallback */}
-      <Avatar size="md">
-        {displayUrl && <AvatarImage src={displayUrl} />}
-        <AvatarFallback>{fallback}</AvatarFallback>
-      </Avatar>
-
-      <div className="flex flex-col gap-1">
-        {/* Filename + clear button when a new file is staged */}
-        {selectedFile && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground truncate max-w-[150px]">
-              {selectedFile.name}
-            </span>
-            <button
-              type="button"
-              onClick={() => onSelect(null)}
-              className="text-muted-foreground hover:text-foreground"
-              aria-label="Премахни избрания файл"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
-        )}
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs"
-          onClick={() => fileRef.current?.click()}
-        >
-          <Upload className="h-3 w-3" />
-          {currentUrl || selectedFile ? 'Смени иконата' : 'Качи икона'}
-        </Button>
-      </div>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="relative group cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={hasImage ? 'Премахни иконата' : 'Качи икона'}
+      >
+        <Avatar size="lg">
+          {displayUrl && <AvatarImage src={displayUrl} />}
+          <AvatarFallback>{fallback}</AvatarFallback>
+        </Avatar>
+        {/* Hover overlay */}
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+          {hasImage ? (
+            <span className="text-white text-[10px] font-medium">Премахни</span>
+          ) : (
+            <Upload className="size-4 text-white" />
+          )}
+        </div>
+      </button>
 
       {/* Hidden file input — SVG only */}
       <input
@@ -79,6 +72,6 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
           e.target.value = '' // allow re-selecting the same file
         }}
       />
-    </div>
+    </>
   )
 }

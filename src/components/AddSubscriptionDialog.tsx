@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -18,12 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import { IconUpload } from '@/components/IconUpload'
 import type { BillingCycle, CreateSubscriptionInput, PaymentSource } from '@/types'
 import { cycleLabelBg } from '@/lib/subscriptions'
-import { convertUsdToEur } from '@/lib/constants'
+import { convertUsdToEur, formatAmountInput, validateExpressionInput, evaluateExpression } from '@/lib/constants'
 import { uploadSubscriptionIcon } from '@/lib/storage'
 
 type Currency = 'EUR' | 'USD'
@@ -48,6 +47,7 @@ export function AddSubscriptionDialog({
   paymentSources,
   onSave,
 }: AddSubscriptionDialogProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState<Currency>('EUR')
@@ -60,16 +60,79 @@ export function AddSubscriptionDialog({
   const [iconFile, setIconFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const canSave = name.trim() && Number(amount) > 0 && startDate
+  // Animated amount display state
+  const [animKey, setAnimKey] = useState(0)
+  const [exitChar, setExitChar] = useState<string | null>(null)
+  const [exitKey, setExitKey] = useState(0)
+  const [shaking, setShaking] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const prevAmountRef = useRef('')
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setName('')
+      setAmount('')
+      setCurrency('EUR')
+      setCycle('monthly')
+      setSourceId('__none__')
+      setStartDate(todayStr())
+      setNotes('')
+      setIsActive(true)
+      setIsRebate(false)
+      setIconFile(null)
+      setExitChar(null)
+      prevAmountRef.current = ''
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
+    }
+  }, [open])
+
+  // Animate last character in/out
+  useEffect(() => {
+    const prev = prevAmountRef.current
+    if (amount.length > prev.length) {
+      setAnimKey(k => k + 1)
+      setExitChar(null)
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
+    } else if (amount.length < prev.length) {
+      setExitChar(prev.slice(-1))
+      setExitKey(k => k + 1)
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
+      exitTimerRef.current = setTimeout(() => setExitChar(null), 200)
+    }
+    prevAmountRef.current = amount
+  }, [amount])
+
+  const commitExpression = () => {
+    if (!amount || ![...amount].some(c => '+-*/()'.includes(c))) return
+    const result = evaluateExpression(amount)
+    if (result === false) {
+      setShaking(true)
+      setTimeout(() => setShaking(false), 400)
+    } else {
+      setAmount(String(result))
+    }
+  }
+
+  const canSave = name.trim() && amount && Number(amount) > 0 && startDate
 
   const handleSave = async () => {
     if (!canSave) return
+
+    // Evaluate expression if present
+    let finalAmount = amount
+    if ([...finalAmount].some(c => '+-*/()'.includes(c))) {
+      const result = evaluateExpression(finalAmount)
+      if (result === false) return
+      finalAmount = String(result)
+    }
+
     setSaving(true)
     try {
-      const rawAmount = Number(amount)
+      const rawAmount = Number(finalAmount)
       const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
 
-      // Upload icon first (if selected) — get the public URL before inserting the row
       let icon_url: string | null = null
       if (iconFile) {
         icon_url = await uploadSubscriptionIcon(iconFile)
@@ -87,77 +150,138 @@ export function AddSubscriptionDialog({
         icon_url,
       })
     } catch {
-      toast.error('Грешка при качване на иконата')
+      toast.error('Грешка при запазване')
       setSaving(false)
       return
     }
     setSaving(false)
-    // Reset form
-    setName('')
-    setAmount('')
-    setCurrency('EUR')
-    setCycle('monthly')
-    setSourceId('__none__')
-    setStartDate(todayStr())
-    setNotes('')
-    setIsActive(true)
-    setIsRebate(false)
-    setIconFile(null)
     onOpenChange(false)
   }
+
+  const currencySymbol = currency === 'EUR' ? '€' : '$'
+  const isExpression = [...amount].some(c => '+-*/()'.includes(c))
+  const formatted = isExpression ? amount : formatAmountInput(amount)
+  const amountFontSize = formatted.length > 10 ? 24 : formatted.length > 9 ? 32 : 40
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px] p-0 gap-0 overflow-hidden" aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Нов абонамент</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Добави абонамент</DialogTitle>
         </DialogHeader>
 
-        <DialogBody className="flex-1 min-h-0 max-h-none">
-          {/* Icon upload */}
-          <IconUpload
-            name={name}
-            currentUrl={null}
-            selectedFile={iconFile}
-            onSelect={setIconFile}
-          />
+        <DialogBody className="flex-1 min-h-0 max-h-none gap-6">
+          {/* Amount + currency toggle — centered */}
+          <div className="flex flex-col items-center gap-3 py-4">
+            <div
+              className={`flex items-baseline justify-center gap-0.5 cursor-text h-[40px] ${shaking ? 'animate-shake' : ''}`}
+              onClick={() => inputRef.current?.focus()}
+            >
+              <div className="relative inline-flex">
+                {/* Mirror span sizes the container */}
+                <span
+                  className="invisible whitespace-pre font-bold tabular-nums leading-none"
+                  style={{ fontSize: amountFontSize }}
+                  aria-hidden="true"
+                >
+                  {exitChar ? formatted + exitChar : (formatted || '0')}
+                </span>
+                {/* Animated display */}
+                <div
+                  className="absolute inset-0 flex items-center font-bold tabular-nums leading-none pointer-events-none select-none overflow-hidden"
+                  style={{ fontSize: amountFontSize, color: (amount || exitChar) ? 'var(--foreground)' : 'var(--muted-foreground)' }}
+                >
+                  {!amount && !exitChar ? '0' : (
+                    <>
+                      {formatted.slice(0, -1)}
+                      {amount && (
+                        <span key={animKey} className="inline-block animate-in slide-in-from-bottom-3 fade-in-0 duration-150">
+                          {formatted.slice(-1)}
+                        </span>
+                      )}
+                      {exitChar && (
+                        <span key={exitKey} className="inline-block animate-out slide-out-to-bottom-3 fade-out-0 duration-150">
+                          {exitChar}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+                {/* Hidden input captures keystrokes */}
+                <input
+                  ref={inputRef}
+                  type="text"
+                  inputMode="decimal"
+                  data-math-input=""
+                  value={amount}
+                  onChange={e => {
+                    const result = validateExpressionInput(e.target.value)
+                    if (result === false) {
+                      setShaking(true)
+                      setTimeout(() => setShaking(false), 400)
+                      return
+                    }
+                    setAmount(result)
+                  }}
+                  onKeyDown={e => { if (e.key === 'Enter') commitExpression() }}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => { setFocused(false); commitExpression() }}
+                  autoFocus
+                  className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
+                />
+              </div>
+              {/* Blinking caret */}
+              <span
+                className={`pointer-events-none font-light ${focused ? 'animate-caret' : 'opacity-0'}`}
+                style={{ fontSize: amountFontSize, lineHeight: 1 }}
+              >|</span>
+              <span className="font-bold leading-none pointer-events-none" style={{ fontSize: amountFontSize }}>
+                {currencySymbol}
+              </span>
+            </div>
+            <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} currencies={['EUR', 'USD']} />
+            {currency === 'USD' && amount && !isExpression && Number(amount) > 0 && (
+              <p className="text-xs text-muted-foreground -mt-1">
+                ≈ {convertUsdToEur(Number(amount)).toFixed(2)} €
+              </p>
+            )}
+          </div>
 
-          {/* Name */}
-          <div className="grid gap-1.5">
-            <Label>Наименование</Label>
+          {/* Icon + Name — same row */}
+          <div className="flex items-center gap-3">
+            <IconUpload
+              name={name}
+              currentUrl={null}
+              selectedFile={iconFile}
+              onSelect={setIconFile}
+            />
             <Input
-              placeholder="Netflix, Spotify..."
+              className="flex-1"
+              placeholder="Име"
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSave()}
             />
           </div>
 
-          {/* Amount + Cycle */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label>Сума</Label>
-                <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} currencies={['EUR', 'USD']} />
-              </div>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-              />
-              {currency === 'USD' && amount && Number(amount) > 0 && (
-                <p className="text-xs text-muted-foreground -mt-1">
-                  ≈ {convertUsdToEur(Number(amount)).toFixed(2)} €
-                </p>
-              )}
-            </div>
-            <div className="grid gap-1.5">
-              <Label>Периодичност</Label>
+          <div className="flex flex-col gap-2">
+            {/* Payment source */}
+            <Select value={sourceId} onValueChange={setSourceId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Начин на плащане" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">Без платежен метод</SelectItem>
+                {paymentSources.map(s => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Billing cycle + start date */}
+            <div className="flex gap-2">
               <Select value={cycle} onValueChange={v => setCycle(v as BillingCycle)}>
-                <SelectTrigger>
+                <SelectTrigger className="flex-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -166,63 +290,31 @@ export function AddSubscriptionDialog({
                   ))}
                 </SelectContent>
               </Select>
+              <Input
+                type="date"
+                className="flex-1"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+              />
             </div>
+
           </div>
 
-          {/* Start date */}
-          <div className="grid gap-1.5">
-            <Label>Следващо плащане</Label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-            />
-          </div>
-
-          {/* Payment source */}
-          <div className="grid gap-1.5">
-            <Label>Начин на плащане</Label>
-            <Select value={sourceId} onValueChange={setSourceId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Не е зададен" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">Не е зададен</SelectItem>
-                {paymentSources.map(s => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Notes */}
-          <div className="grid gap-1.5">
-            <Label>Бележки (незадължително)</Label>
-            <Input
-              placeholder=""
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-            />
-          </div>
+          <Input
+            placeholder="Бележка"
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+          />
 
           {/* Toggles */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="add-active"
-                checked={isActive}
-                onCheckedChange={v => setIsActive(v === true)}
-              />
-              <Label htmlFor="add-active" className="cursor-pointer">Активен</Label>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <label htmlFor="add-sub-active" className="text-sm font-medium cursor-pointer">Активен</label>
+              <Switch id="add-sub-active" checked={isActive} onCheckedChange={setIsActive} />
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="add-rebate"
-                checked={isRebate}
-                onCheckedChange={v => setIsRebate(v === true)}
-              />
-              <Label htmlFor="add-rebate" className="cursor-pointer">Rebate</Label>
-              <span className="text-xs text-muted-foreground">— не се брои в общите суми</span>
+            <div className="flex items-center justify-between">
+              <label htmlFor="add-sub-rebate" className="text-sm font-medium cursor-pointer">Rebate</label>
+              <Switch id="add-sub-rebate" checked={isRebate} onCheckedChange={setIsRebate} />
             </div>
           </div>
         </DialogBody>
@@ -230,7 +322,7 @@ export function AddSubscriptionDialog({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отказ</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!canSave || saving}>
-            Запази
+            {saving ? 'Запазване...' : 'Запази'}
           </Button>
         </DialogFooter>
       </DialogContent>
