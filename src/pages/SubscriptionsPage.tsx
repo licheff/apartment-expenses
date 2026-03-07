@@ -25,6 +25,7 @@ import { TableContainer } from '@/components/TableContainer'
 import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
+import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
 import type { CreateSubscriptionInput, Subscription } from '@/types'
 import {
   cycleLabelBg,
@@ -165,6 +166,12 @@ export function SubscriptionsPage() {
   const [editingSub, setEditingSub] = useState<Subscription | null>(null)
   const [sourcesOpen, setSourcesOpen] = useState(false)
 
+  const {
+    priceChanges,
+    loading: priceChangesLoading,
+    recordPriceChange,
+  } = useSubscriptionPriceChanges(editingSub?.id ?? null)
+
   const handleOpenAdd = useCallback(() => setAddOpen(true), [])
 
   // ⌘A keyboard shortcut
@@ -238,6 +245,18 @@ export function SubscriptionsPage() {
     } else {
       toast.success('Абонаментът е изтрит')
     }
+  }
+
+  const handleRecordPriceChange = async (input: {
+    amount: number
+    previous_amount: number | null
+    effective_from: string
+  }) => {
+    const { error } = await recordPriceChange(input)
+    if (error) {
+      toast.error('Грешка при записване на промяната')
+    }
+    return { error }
   }
 
   return (
@@ -351,8 +370,11 @@ export function SubscriptionsPage() {
         onOpenChange={setEditOpen}
         subscription={editingSub}
         paymentSources={paymentSources}
+        priceChanges={priceChanges}
+        priceChangesLoading={priceChangesLoading}
         onSave={handleUpdate}
         onDelete={handleDelete}
+        onRecordPriceChange={handleRecordPriceChange}
       />
 
       <ManagePaymentSourcesDialog

@@ -81,6 +81,15 @@ export interface Subscription {
   updated_at: string
 }
 
+export interface SubscriptionPriceChange {
+  id: string
+  subscription_id: string
+  amount: number              // new price (EUR)
+  previous_amount: number | null  // old price (EUR), null for initial
+  effective_from: string      // "YYYY-MM-DD"
+  created_at: string
+}
+
 export interface CreateSubscriptionInput {
   name: string
   amount: number
