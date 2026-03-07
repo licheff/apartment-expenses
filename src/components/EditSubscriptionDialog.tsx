@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { ArrowRight } from 'lucide-react'
 import {
   Dialog,
   DialogBody,
@@ -17,25 +18,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import { IconUpload } from '@/components/IconUpload'
-import type { BillingCycle, CreateSubscriptionInput, PaymentSource, Subscription } from '@/types'
+import type { BillingCycle, CreateSubscriptionInput, PaymentSource, Subscription, SubscriptionPriceChange } from '@/types'
 import { cycleLabelBg } from '@/lib/subscriptions'
-import { convertUsdToEur, formatAmountInput, validateExpressionInput, evaluateExpression } from '@/lib/constants'
+import { convertUsdToEur, formatCurrency } from '@/lib/constants'
 import { uploadSubscriptionIcon } from '@/lib/storage'
 
 type Currency = 'EUR' | 'USD'
 
 const BILLING_CYCLES: BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'bi_annual', 'yearly']
 
+function todayString() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 interface EditSubscriptionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   subscription: Subscription | null
   paymentSources: PaymentSource[]
+  priceChanges: SubscriptionPriceChange[]
+  priceChangesLoading: boolean
   onSave: (id: string, input: Partial<CreateSubscriptionInput>) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onRecordPriceChange: (input: {
+    amount: number
+    previous_amount: number | null
+    effective_from: string
+  }) => Promise<{ error: unknown }>
 }
 
 export function EditSubscriptionDialog({
@@ -43,13 +57,12 @@ export function EditSubscriptionDialog({
   onOpenChange,
   subscription,
   paymentSources,
+  priceChanges,
   onSave,
   onDelete,
+  onRecordPriceChange,
 }: EditSubscriptionDialogProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [currency, setCurrency] = useState<Currency>('EUR')
   const [cycle, setCycle] = useState<BillingCycle>('monthly')
   const [sourceId, setSourceId] = useState<string>('__none__')
   const [startDate, setStartDate] = useState('')
@@ -61,21 +74,16 @@ export function EditSubscriptionDialog({
   const [saving, setSaving] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
-  // Animated amount display state
-  const [animKey, setAnimKey] = useState(0)
-  const [exitChar, setExitChar] = useState<string | null>(null)
-  const [exitKey, setExitKey] = useState(0)
-  const [shaking, setShaking] = useState(false)
-  const [focused, setFocused] = useState(false)
-  const prevAmountRef = useRef('')
-  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Price update form state
+  const [showPriceUpdate, setShowPriceUpdate] = useState(false)
+  const [newPrice, setNewPrice] = useState('')
+  const [newPriceCurrency, setNewPriceCurrency] = useState<Currency>('EUR')
+  const [effectiveFrom, setEffectiveFrom] = useState('')
 
   // Populate form when subscription changes
   useEffect(() => {
     if (subscription) {
       setName(subscription.name)
-      setAmount(String(subscription.amount))
-      setCurrency('EUR')
       setCycle(subscription.billing_cycle)
       setSourceId(subscription.payment_source_id ?? '__none__')
       setStartDate(subscription.start_date)
@@ -85,66 +93,48 @@ export function EditSubscriptionDialog({
       setIconFile(null)
       setIconRemoved(false)
       setConfirming(false)
-      setExitChar(null)
-      prevAmountRef.current = String(subscription.amount)
-      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
+      setShowPriceUpdate(false)
+      setNewPrice('')
+      setNewPriceCurrency('EUR')
+      setEffectiveFrom(todayString())
     }
   }, [subscription])
-
-  // Animate last character in/out
-  useEffect(() => {
-    const prev = prevAmountRef.current
-    if (amount.length > prev.length) {
-      setAnimKey(k => k + 1)
-      setExitChar(null)
-      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
-    } else if (amount.length < prev.length) {
-      setExitChar(prev.slice(-1))
-      setExitKey(k => k + 1)
-      if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
-      exitTimerRef.current = setTimeout(() => setExitChar(null), 200)
-    }
-    prevAmountRef.current = amount
-  }, [amount])
-
-  const commitExpression = () => {
-    if (!amount || ![...amount].some(c => '+-*/()'.includes(c))) return
-    const result = evaluateExpression(amount)
-    if (result === false) {
-      setShaking(true)
-      setTimeout(() => setShaking(false), 400)
-    } else {
-      setAmount(String(result))
-    }
-  }
 
   const handleIconSelect = (file: File | null) => {
     if (file) {
       setIconFile(file)
       setIconRemoved(false)
     } else {
-      // Removing: clear staged file and mark existing as removed
       setIconFile(null)
       setIconRemoved(true)
     }
   }
 
-  const canSave = name.trim() && amount && Number(amount) > 0 && startDate
+  const priceUpdateValid = !showPriceUpdate || (Number(newPrice) > 0 && effectiveFrom)
+  const canSave = name.trim() && startDate && priceUpdateValid
 
   const handleSave = async () => {
     if (!canSave || !subscription) return
-
-    let finalAmount = amount
-    if ([...finalAmount].some(c => '+-*/()'.includes(c))) {
-      const result = evaluateExpression(finalAmount)
-      if (result === false) return
-      finalAmount = String(result)
-    }
-
     setSaving(true)
     try {
-      const rawAmount = Number(finalAmount)
-      const eurAmount = currency === 'USD' ? convertUsdToEur(rawAmount) : rawAmount
+      let eurAmount = subscription.amount
+
+      // If a price change was entered, record it and use the new price
+      if (showPriceUpdate && Number(newPrice) > 0 && effectiveFrom) {
+        const rawNew = Number(newPrice)
+        eurAmount = newPriceCurrency === 'USD' ? convertUsdToEur(rawNew) : rawNew
+
+        const { error } = await onRecordPriceChange({
+          amount: eurAmount,
+          previous_amount: subscription.amount,
+          effective_from: effectiveFrom,
+        })
+        if (error) {
+          toast.error('Грешка при записване на промяната')
+          setSaving(false)
+          return
+        }
+      }
 
       let icon_url = subscription.icon_url
       if (iconFile) {
@@ -183,11 +173,6 @@ export function EditSubscriptionDialog({
     onOpenChange(false)
   }
 
-  const currencySymbol = currency === 'EUR' ? '€' : '$'
-  const isExpression = [...amount].some(c => '+-*/()'.includes(c))
-  const formatted = isExpression ? amount : formatAmountInput(amount)
-  const amountFontSize = formatted.length > 10 ? 24 : formatted.length > 9 ? 32 : 40
-
   // Show existing icon only if not explicitly removed
   const effectiveIconUrl = iconRemoved ? null : (subscription?.icon_url ?? null)
 
@@ -198,125 +183,61 @@ export function EditSubscriptionDialog({
           <DialogTitle className="text-xl font-semibold">Редактирай абонамент</DialogTitle>
         </DialogHeader>
 
-        <DialogBody className="flex-1 min-h-0 max-h-none">
-          {/* Amount + currency toggle — centered */}
-          <div className="flex flex-col items-center gap-3">
-            <div
-              className={`flex items-baseline justify-center gap-0.5 cursor-text h-[40px] ${shaking ? 'animate-shake' : ''}`}
-              onClick={() => inputRef.current?.focus()}
-            >
-              <div className="relative inline-flex">
-                <span
-                  className="invisible whitespace-pre font-bold tabular-nums leading-none"
-                  style={{ fontSize: amountFontSize }}
-                  aria-hidden="true"
-                >
-                  {exitChar ? formatted + exitChar : (formatted || '0')}
-                </span>
-                <div
-                  className="absolute inset-0 flex items-center font-bold tabular-nums leading-none pointer-events-none select-none overflow-hidden"
-                  style={{ fontSize: amountFontSize, color: (amount || exitChar) ? 'var(--foreground)' : 'var(--muted-foreground)' }}
-                >
-                  {!amount && !exitChar ? '0' : (
-                    <>
-                      {formatted.slice(0, -1)}
-                      {amount && (
-                        <span key={animKey} className="inline-block animate-in slide-in-from-bottom-3 fade-in-0 duration-150">
-                          {formatted.slice(-1)}
-                        </span>
-                      )}
-                      {exitChar && (
-                        <span key={exitKey} className="inline-block animate-out slide-out-to-bottom-3 fade-out-0 duration-150">
-                          {exitChar}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  inputMode="decimal"
-                  data-math-input=""
-                  value={amount}
-                  onChange={e => {
-                    const result = validateExpressionInput(e.target.value)
-                    if (result === false) {
-                      setShaking(true)
-                      setTimeout(() => setShaking(false), 400)
-                      return
-                    }
-                    setAmount(result)
-                  }}
-                  onKeyDown={e => { if (e.key === 'Enter') commitExpression() }}
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => { setFocused(false); commitExpression() }}
-                  className="absolute inset-0 w-full opacity-0 border-none outline-none cursor-text"
-                />
-              </div>
-              <span
-                className={`pointer-events-none font-light ${focused ? 'animate-caret' : 'opacity-0'}`}
-                style={{ fontSize: amountFontSize, lineHeight: 1 }}
-              >|</span>
-              <span className="font-bold leading-none pointer-events-none" style={{ fontSize: amountFontSize }}>
-                {currencySymbol}
-              </span>
+        <DialogBody className="flex-1 min-h-0 max-h-none gap-6">
+            <div className="flex w-full justify-center">
+              <IconUpload
+                name={name}
+                currentUrl={effectiveIconUrl}
+                selectedFile={iconFile}
+                onSelect={handleIconSelect}
+              />
             </div>
-            <CurrencyToggle value={currency} onChange={v => setCurrency(v as Currency)} currencies={['EUR', 'USD']} />
-            {currency === 'USD' && amount && !isExpression && Number(amount) > 0 && (
-              <p className="text-xs text-muted-foreground -mt-1">
-                ≈ {convertUsdToEur(Number(amount)).toFixed(2)} €
-              </p>
-            )}
+          {/* Amount — read-only display */}
+          <div className="flex flex-col items-center gap-1 py-4">
+            <span className="font-bold tabular-nums leading-none" style={{ fontSize: 40 }}>
+              {subscription ? formatCurrency(subscription.amount) : '0 €'}
+            </span>
           </div>
 
-          {/* Icon + Name — same row */}
-          <div className="flex items-center gap-3">
-            <IconUpload
-              name={name}
-              currentUrl={effectiveIconUrl}
-              selectedFile={iconFile}
-              onSelect={handleIconSelect}
-            />
+          {/* Name */}
             <Input
-              className="flex-1"
               placeholder="Име"
               value={name}
               onChange={e => setName(e.target.value)}
             />
-          </div>
-
-          {/* Payment source */}
-          <Select value={sourceId} onValueChange={setSourceId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Начин на плащане" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">Не е зададен</SelectItem>
-              {paymentSources.map(s => (
-                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Billing cycle + start date */}
-          <div className="flex gap-3">
-            <Select value={cycle} onValueChange={v => setCycle(v as BillingCycle)}>
-              <SelectTrigger className="flex-1">
-                <SelectValue />
+          <div className="flex flex-col gap-2">
+            {/* Payment source */}
+            <Select value={sourceId} onValueChange={setSourceId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Начин на плащане" />
               </SelectTrigger>
               <SelectContent>
-                {BILLING_CYCLES.map(c => (
-                  <SelectItem key={c} value={c}>{cycleLabelBg(c)}</SelectItem>
+                <SelectItem value="__none__">Не е зададен</SelectItem>
+                {paymentSources.map(s => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Input
-              type="date"
-              className="flex-1"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-            />
+
+            {/* Billing cycle + start date */}
+            <div className="flex gap-2">
+              <Select value={cycle} onValueChange={v => setCycle(v as BillingCycle)}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BILLING_CYCLES.map(c => (
+                    <SelectItem key={c} value={c}>{cycleLabelBg(c)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                className="flex-1"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Notes */}
@@ -337,6 +258,91 @@ export function EditSubscriptionDialog({
               <Switch id="edit-sub-rebate" checked={isRebate} onCheckedChange={setIsRebate} />
             </div>
           </div>
+
+          {/* Price update — record change with effective date */}
+          {!showPriceUpdate ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fill"
+              onClick={() => setShowPriceUpdate(true)}
+            >
+              Промяна на цена...
+            </Button>
+          ) : (
+            <div className="rounded-md border bg-muted/15 p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Промяна на цена</span>
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => { setShowPriceUpdate(false); setNewPrice(''); setNewPriceCurrency('EUR') }}
+                >
+                  Отказ
+                </button>
+              </div>
+              <div className="grid gap-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Нова цена</span>
+                  <CurrencyToggle value={newPriceCurrency} onChange={v => setNewPriceCurrency(v as Currency)} currencies={['EUR', 'USD']} />
+                </div>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={newPrice}
+                  onChange={e => setNewPrice(e.target.value)}
+                  autoFocus
+                />
+                {newPriceCurrency === 'USD' && newPrice && Number(newPrice) > 0 && (
+                  <p className="text-xs text-muted-foreground -mt-1">
+                    ≈ {convertUsdToEur(Number(newPrice)).toFixed(2)} €
+                  </p>
+                )}
+              </div>
+              <div className="grid gap-1.5">
+                <span className="text-sm">В сила от</span>
+                <Input
+                  type="date"
+                  value={effectiveFrom}
+                  onChange={e => setEffectiveFrom(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Price history */}
+          {priceChanges.length > 0 && (
+            <>
+              <Separator />
+              <div className="grid gap-2">
+                <span className="text-muted-foreground text-xs uppercase tracking-wide">
+                  История на цените
+                </span>
+                <div className="space-y-1.5">
+                  {priceChanges.map(pc => (
+                    <div key={pc.id} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {new Date(pc.effective_from + 'T00:00:00').toLocaleDateString('bg-BG', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                        })}
+                      </span>
+                      <span className="tabular-nums flex items-center gap-1.5">
+                        {pc.previous_amount != null && (
+                          <>
+                            <span className="text-muted-foreground">{formatCurrency(pc.previous_amount)}</span>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                          </>
+                        )}
+                        <span className="font-medium">{formatCurrency(pc.amount)}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </DialogBody>
 
         <DialogFooter>
@@ -347,7 +353,6 @@ export function EditSubscriptionDialog({
           >
             {confirming ? 'Сигурен ли си?' : 'Изтрий'}
           </Button>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Отказ</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!canSave || saving}>
             {saving ? 'Запазване...' : 'Запази'}
           </Button>

@@ -171,6 +171,14 @@ export function AddSubscriptionDialog({
         </DialogHeader>
 
         <DialogBody className="flex-1 min-h-0 max-h-none gap-6">
+          <div className="flex w-full justify-center">
+            <IconUpload
+            name={name}
+            currentUrl={null}
+            selectedFile={iconFile}
+            onSelect={setIconFile}
+            />
+          </div>
           {/* Amount + currency toggle — centered */}
           <div className="flex flex-col items-center gap-3 py-4">
             <div
@@ -247,22 +255,13 @@ export function AddSubscriptionDialog({
             )}
           </div>
 
-          {/* Icon + Name — same row */}
-          <div className="flex items-center gap-3">
-            <IconUpload
-              name={name}
-              currentUrl={null}
-              selectedFile={iconFile}
-              onSelect={setIconFile}
-            />
+          {/* Name */}
             <Input
-              className="flex-1"
               placeholder="Име"
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSave()}
             />
-          </div>
 
           <div className="flex flex-col gap-2">
             {/* Payment source */}
@@ -320,7 +319,6 @@ export function AddSubscriptionDialog({
         </DialogBody>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Отказ</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!canSave || saving}>
             {saving ? 'Запазване...' : 'Запази'}
           </Button>
