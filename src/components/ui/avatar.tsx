@@ -19,7 +19,7 @@ function Avatar({
   return (
     <RadixAvatar.Root
       className={cn(
-        "relative flex shrink-0 overflow-hidden rounded-full",
+        "relative flex shrink-0 overflow-hidden rounded-lg",
         sizes[size],
         className,
       )}
@@ -47,7 +47,7 @@ function AvatarFallback({
   return (
     <RadixAvatar.Fallback
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground font-semibold uppercase",
+        "flex h-full w-full items-center justify-center rounded-lg bg-muted text-muted-foreground font-semibold uppercase",
         className,
       )}
       {...props}

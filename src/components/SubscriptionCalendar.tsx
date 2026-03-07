@@ -129,7 +129,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
               ].join(' ')}
             >
               <span className={todayDay
-                ? 'flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold'
+                ? 'flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold'
                 : 'flex h-6 w-6 items-center justify-center text-xs'
               }>
                 {day}
@@ -148,7 +148,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                     </Avatar>
                   ))}
                   {subs.length > 3 && (
-                    <span className="h-4 w-4 rounded-full bg-muted-foreground" />
+                    <span className="h-4 w-4 rounded-lg bg-muted-foreground" />
                   )}
                 </div>
               )}

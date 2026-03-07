@@ -26,7 +26,7 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
 
   const displayUrl = previewUrl ?? currentUrl ?? undefined
   const hasImage = !!displayUrl
-  const fallback = name?.[0]?.toUpperCase() ?? '?'
+  const fallback = name?.[0]?.toUpperCase() ?? 'x'
 
   const handleClick = () => {
     if (hasImage) {
@@ -43,7 +43,7 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
       <button
         type="button"
         onClick={handleClick}
-        className="relative group cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="relative group cursor-pointer rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={hasImage ? 'Премахни иконата' : 'Качи икона'}
       >
         <Avatar size="lg">
@@ -51,7 +51,7 @@ export function IconUpload({ name, currentUrl, selectedFile, onSelect }: IconUpl
           <AvatarFallback>{fallback}</AvatarFallback>
         </Avatar>
         {/* Hover overlay */}
-        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
           {hasImage ? (
             <span className="text-white text-[10px] font-medium">Премахни</span>
           ) : (
