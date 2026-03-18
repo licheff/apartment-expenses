@@ -9,32 +9,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Skill | File | When to use |
 |-------|------|-------------|
 | Git commits | `skills/git.md` | Writing commit messages |
-| Dialog layout | `skills/dialogs.md` | Adding or modifying modal dialogs |
+| Dialog layout | `skills/dialogs.md` | Any work inside a Radix dialog — layout, form fields, footer buttons |
 | Amount inputs | `skills/amount-input.md` | Any numeric/currency input field |
 | Currency | `skills/currency.md` | Storing, formatting, or converting amounts |
-| Business logic | `skills/business-logic.md` | paid_by_me, rent, expense upserts |
-| Automation | `skills/automation.md` | Bill parsing pipeline, adding providers |
-| UI patterns | `skills/ui.md` | Tables, badges, responsive layout |
+| Business logic | `skills/business-logic.md` | paid_by_me calculations, rent tracking, expense upserts, month offset rule |
+| Automation | `skills/automation.md` | ePay.bg pipeline, providers table, Apps Script, bills table |
+| UI patterns | `skills/ui.md` | Tables, badges, layout, SectionCard, TableContainer, DaysBadge, UpcomingPaymentsList |
 | TypeScript | `skills/typescript.md` | Avoiding strict-mode build errors |
+| Subscriptions | `skills/subscriptions.md` | Any work on subscriptions, recurring payments, subscription calendar, upcoming payments, payment sources |
 
----
-
-## Skill Creation Rules
-
-When I ask you to create a new skill:
-
-1. Place it in /skills/{domain}.md
-2. Keep it under 80 lines
-3. Follow this structure:
-   - **Purpose**: One sentence — when does this skill apply?
-   - **Rules**: Numbered list of instructions, most important first
-   - **Anti-patterns**: Common mistakes to avoid (if any)
-   - **Examples**: 1-2 short good/bad examples only if the rule isn't obvious
-4. After creating the skill, add a routing entry to this CLAUDE.md
-   under the "Skills" section below
-5. Don't duplicate what's already obvious from the codebase
-
-Before creating a skill, check if an existing one should be extended instead.
+> See [ROADMAP.md](ROADMAP.md) for planned features — consult before making architectural decisions.
 
 ## Commands
 
@@ -111,3 +95,24 @@ VITE_SUPABASE_ANON_KEY=...
 - All CRUD operations happen in modal dialogs; dialog open state is managed in `App.tsx`
 - `Cmd+A` keyboard shortcut opens the add expense dialog
 - Components in `src/components/ui/` are Radix UI + Tailwind compositions (treated like a local shadcn/ui setup)
+
+### Feature Map
+
+Use this to know which files to read before starting any task.
+
+| Feature | Key files |
+|---------|-----------|
+| Expense tracking | `pages/OverviewPage`, `components/ExpenseTable`, `components/AddExpenseDialog`, `components/EditExpenseDialog`, `hooks/useExpenses`, `hooks/useRentPayments` |
+| Subscriptions | `pages/SubscriptionsPage`, `components/AddSubscriptionDialog`, `components/EditSubscriptionDialog`, `components/SubscriptionCalendar`, `hooks/useSubscriptions`, `hooks/useSubscriptionPriceChanges`, `lib/subscriptions` |
+| Yearly expenses | `components/YearlyExpensesSection`, `hooks/useYearlyExpenses` |
+| Summary & charts | `components/YearSummaryStrip`, `components/YearComparisonChart`, `hooks/useExpenseSummary` |
+| Apartments & categories | `hooks/useApartments`, `components/ManageCategoriesDialog`, `components/ApartmentTabs` |
+| CSV import/export | `components/CsvImportDialog`, `lib/csv-parser`, `lib/csv-exporter` |
+| Payment sources | `hooks/usePaymentSources`, `components/ManagePaymentSourcesDialog` |
+| Currency & amounts | `lib/constants`, `components/CurrencyToggle`, `components/MathOperatorButtons` |
+| Auth | `hooks/useAuth`, `components/LoginPage` |
+| Layout / shell | `App.tsx`, `components/Layout`, `components/Header`, `components/Sidebar` |
+| Shared UI primitives | `components/ui/*`, `lib/utils` |
+| Automation (ePay.bg) | DB-only — see `skills/automation.md` |
+
+> All paths relative to `src/` (path alias `@/`).
