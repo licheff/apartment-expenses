@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Important:** Always read and reference this file first before consulting any outside sources or making assumptions. For implementation patterns and conventions, consult the relevant skill file from the Skills section below.
 
+**After implementing a feature or making an architectural change:** update any affected skill files and the Feature Map in this file.
+
 ## Skills
 
 | Skill | File | When to use |
