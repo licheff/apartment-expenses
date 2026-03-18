@@ -102,17 +102,17 @@ Use this to know which files to read before starting any task.
 
 | Feature | Key files |
 |---------|-----------|
-| Expense tracking | `pages/OverviewPage`, `components/ExpenseTable`, `components/AddExpenseDialog`, `components/EditExpenseDialog`, `hooks/useExpenses`, `hooks/useRentPayments` |
-| Subscriptions | `pages/SubscriptionsPage`, `components/AddSubscriptionDialog`, `components/EditSubscriptionDialog`, `components/SubscriptionCalendar`, `hooks/useSubscriptions`, `hooks/useSubscriptionPriceChanges`, `lib/subscriptions` |
-| Yearly expenses | `components/YearlyExpensesSection`, `hooks/useYearlyExpenses` |
-| Summary & charts | `components/YearSummaryStrip`, `components/YearComparisonChart`, `hooks/useExpenseSummary` |
-| Apartments & categories | `hooks/useApartments`, `components/ManageCategoriesDialog`, `components/ApartmentTabs` |
-| CSV import/export | `components/CsvImportDialog`, `lib/csv-parser`, `lib/csv-exporter` |
-| Payment sources | `hooks/usePaymentSources`, `components/ManagePaymentSourcesDialog` |
-| Currency & amounts | `lib/constants`, `components/CurrencyToggle`, `components/MathOperatorButtons` |
-| Auth | `hooks/useAuth`, `components/LoginPage` |
-| Layout / shell | `App.tsx`, `components/Layout`, `components/Header`, `components/Sidebar` |
-| Shared UI primitives | `components/ui/*`, `lib/utils` |
+| Expense tracking | `pages/OverviewPage.tsx`, `components/ExpenseTable.tsx`, `components/AddExpenseDialog.tsx`, `components/EditExpenseDialog.tsx`, `hooks/useExpenses.ts`, `hooks/useRentPayments.ts` |
+| Subscriptions | `pages/SubscriptionsPage.tsx`, `components/AddSubscriptionDialog.tsx`, `components/EditSubscriptionDialog.tsx`, `components/SubscriptionCalendar.tsx`, `hooks/useSubscriptions.ts`, `hooks/useSubscriptionPriceChanges.ts`, `lib/subscriptions.ts` |
+| Yearly expenses | `components/YearlyExpensesSection.tsx`, `hooks/useYearlyExpenses.ts` |
+| Summary & charts | `components/YearSummaryStrip.tsx`, `components/YearComparisonChart.tsx`, `hooks/useExpenseSummary.ts` |
+| Apartments & categories | `hooks/useApartments.ts`, `components/ManageCategoriesDialog.tsx`, `components/ApartmentTabs.tsx` |
+| CSV import/export | `components/CsvImportDialog.tsx`, `lib/csv-parser.ts`, `lib/csv-exporter.ts` |
+| Payment sources | `hooks/usePaymentSources.ts`, `components/ManagePaymentSourcesDialog.tsx` |
+| Currency & amounts | `lib/constants.ts`, `components/CurrencyToggle.tsx`, `components/MathOperatorButtons.tsx` |
+| Auth | `hooks/useAuth.ts`, `components/LoginPage.tsx` |
+| Layout / shell | `App.tsx`, `components/Layout.tsx`, `components/Header.tsx`, `components/Sidebar.tsx` |
+| Shared UI primitives | `components/ui/*`, `lib/utils.ts` |
 | Automation (ePay.bg) | DB-only — see `skills/automation.md` |
 
 > All paths relative to `src/` (path alias `@/`).
