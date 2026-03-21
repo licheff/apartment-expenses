@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Tooltip as RadixTooltip } from 'radix-ui'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MONTH_NAMES } from '@/lib/constants'
 import { parseLocalDate, paymentDatesInMonth } from '@/lib/subscriptions'
-import { formatCurrency } from '@/lib/constants'
 import type { Subscription } from '@/types'
 
 // Bulgarian day abbreviations, Monday-first
@@ -30,8 +30,6 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth() + 1) // 1-indexed
-  const [selectedDay, setSelectedDay] = useState<number | null>(null)
-
   // Assign a stable color to each subscription by its index
   const colorMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -66,20 +64,17 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
   const prevMonth = () => {
     if (month === 1) { setMonth(12); setYear(y => y - 1) }
     else setMonth(m => m - 1)
-    setSelectedDay(null)
   }
   const nextMonth = () => {
     if (month === 12) { setMonth(1); setYear(y => y + 1) }
     else setMonth(m => m + 1)
-    setSelectedDay(null)
   }
 
   const isToday = (day: number) =>
     day === today.getDate() && month === today.getMonth() + 1 && year === today.getFullYear()
 
-  const selectedSubs = selectedDay !== null ? (paymentMap.get(selectedDay) ?? []) : []
-
   return (
+    <RadixTooltip.Provider delayDuration={300}>
     <div className="rounded-lg border bg-card p-4 space-y-3">
       {/* Header — month + nav */}
       <div className="flex items-center justify-between">
@@ -114,18 +109,15 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
           const subs = paymentMap.get(day) ?? []
           const hasSubs = subs.length > 0
-          const isSelected = selectedDay === day
           const todayDay = isToday(day)
 
           return (
             <button
               key={day}
-              onClick={() => setSelectedDay(isSelected ? null : day)}
               className={[
                 'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm transition-colors',
                 hasSubs ? 'cursor-pointer hover:bg-accent' : 'cursor-default',
-                isSelected ? 'bg-accent' : '',
-                todayDay && !isSelected ? 'font-bold' : '',
+                todayDay ? 'font-bold' : '',
               ].join(' ')}
             >
               <span className={todayDay
@@ -157,36 +149,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
         })}
       </div>
 
-      {/* Selected day detail */}
-      {selectedDay !== null && (
-        <div className="border-t pt-3 space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">
-            {selectedDay} {MONTH_NAMES[month]}
-          </p>
-          {selectedSubs.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Няма плащания</p>
-          ) : (
-            <ul className="space-y-1">
-              {selectedSubs.map(sub => (
-                <li key={sub.id} className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Avatar size="sm">
-                      {sub.icon_url && <AvatarImage src={sub.icon_url} />}
-                      <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
-                        {sub.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm">{sub.name}</span>
-                  </div>
-                  <span className="text-sm tabular-nums text-muted-foreground">
-                    {formatCurrency(sub.amount)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
     </div>
+  </RadixTooltip.Provider>
   )
 }
