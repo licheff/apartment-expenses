@@ -15,6 +15,8 @@ function addInterval(date: Date, cycle: BillingCycle): Date {
     case 'quarterly': d.setMonth(d.getMonth() + 3); break
     case 'bi_annual': d.setMonth(d.getMonth() + 6); break
     case 'yearly':    d.setFullYear(d.getFullYear() + 1); break
+    case 'biennial':  d.setFullYear(d.getFullYear() + 2); break
+    case 'triennial': d.setFullYear(d.getFullYear() + 3); break
   }
   return d
 }
@@ -26,6 +28,8 @@ const MONTHLY_FACTORS: Record<BillingCycle, number> = {
   quarterly: 1 / 3,
   bi_annual: 1 / 6,
   yearly:    1 / 12,
+  biennial:  1 / 24,
+  triennial: 1 / 36,
 }
 
 export function monthlyEquivalent(amount: number, cycle: BillingCycle): number {
@@ -92,6 +96,8 @@ export function cycleLabelBg(cycle: BillingCycle): string {
     quarterly: 'Тримесечно',
     bi_annual: 'Полугодишно',
     yearly:    'Годишно',
+    biennial:  'Двугодишно',
+    triennial: 'Тригодишно',
   }
   return labels[cycle]
 }
