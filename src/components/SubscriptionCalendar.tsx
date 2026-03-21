@@ -112,10 +112,10 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 bg-border gap-px">
+      <div className="grid grid-cols-7">
         {/* Leading empty cells */}
         {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`empty-${i}`} className="bg-card min-h-[100px]" />
+          <div key={`empty-${i}`} className="bg-card min-h-[100px] border-b-1 border-r-1 border-dotted border-border [&:nth-child(7n)]:border-r-0 [&:nth-child(n+36)]:border-b-0" />
         ))}
 
         {/* Day cells */}
@@ -129,14 +129,11 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
               <div
                 key={day}
                 className={[
-                  'flex flex-col items-center gap-1.5 bg-card min-h-[100px] py-3.5 text-sm',
-                  todayDay ? 'font-bold' : '',
+                  'flex flex-col items-center gap-1.5 min-h-[100px] py-3.5 text-sm border-b-1 border-r-1 border-dotted border-border [&:nth-child(7n)]:border-r-0 [&:nth-child(n+36)]:border-b-0',
+                  todayDay ? 'bg-primary text-primary-foreground font-bold' : 'bg-card',
                 ].join(' ')}
               >
-                <span className={todayDay
-                  ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
-                  : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
-                }>
+                <span className="flex h-[34px] w-[34px] items-center justify-center text-sm">
                   {day}
                 </span>
               </div>
@@ -149,15 +146,13 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                 <button
                   type="button"
                   className={[
-                    'flex flex-col items-center gap-1.5 bg-card min-h-[100px] py-3.5 w-full text-sm transition-colors',
-                    'hover:bg-accent cursor-pointer',
-                    todayDay ? 'font-bold' : '',
+                    'flex flex-col items-center gap-1.5 min-h-[100px] py-3.5 w-full text-sm transition-colors border-b-1 border-r-1 border-dotted border-border [&:nth-child(7n)]:border-r-0 [&:nth-child(n+36)]:border-b-0',
+                    todayDay
+                      ? 'bg-primary/12 text-primary font-bold hover:bg-primary/20 cursor-default'
+                      : 'bg-card hover:bg-accent cursor-default',
                   ].join(' ')}
                 >
-                  <span className={todayDay
-                    ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
-                    : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
-                  }>
+                  <span className="flex h-[34px] w-[34px] items-center justify-center text-sm">
                     {day}
                   </span>
                   <div className="flex gap-1.5">
@@ -215,7 +210,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
 
         {/* Trailing empty cells to always fill 6 rows */}
         {Array.from({ length: 42 - startOffset - daysInMonth }).map((_, i) => (
-          <div key={`trail-${i}`} className="bg-card min-h-[100px]" />
+          <div key={`trail-${i}`} className="bg-card min-h-[100px] border-b-1 border-r-1 border-dotted border-border [&:nth-child(7n)]:border-r-0 [&:nth-child(n+36)]:border-b-0" />
         ))}
       </div>
 
