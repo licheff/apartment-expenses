@@ -19,7 +19,7 @@ SubscriptionPriceChange {
   subscription_id, amount (new price), previous_amount (old price, null for initial), effective_from: "YYYY-MM-DD"
 }
 
-BillingCycle: 'weekly' | 'monthly' | 'quarterly' | 'bi_annual' | 'yearly'
+BillingCycle: 'weekly' | 'monthly' | 'quarterly' | 'bi_annual' | 'yearly' | 'biennial' | 'triennial'
 ```
 
 ## Key Logic (`lib/subscriptions.ts`)
