@@ -36,7 +36,7 @@ function YoYBadge({
       className={cn(
         'mt-2',
         isUp && 'border-destructive/30 bg-destructive/10 text-destructive',
-        isDown && 'border-green-600/30 bg-green-500/10 text-green-600 dark:text-green-500 dark:border-green-500/30',
+        isDown && 'border-success/30 bg-success/10 text-success',
         !isUp && !isDown && 'text-muted-foreground',
       )}
     >

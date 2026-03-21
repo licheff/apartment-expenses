@@ -140,7 +140,7 @@ export function CsvImportDialog({
 
           {/* Unmatched categories warning */}
           {selectedApartment && unmatchedCategories.length > 0 && (
-            <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
+            <div className="rounded-md bg-warning/15 p-3 text-sm text-warning-foreground">
               Категориите <strong>{unmatchedCategories.join(', ')}</strong> не съвпадат
               и ще бъдат пропуснати.
             </div>

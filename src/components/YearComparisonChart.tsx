@@ -34,13 +34,13 @@ export function YearComparisonChart({
     const config: ChartConfig = {
       current: {
         label: String(currentYear),
-        color: '#525252', // neutral-600
+        color: 'var(--chart-1)',
       },
     }
     if (hasPrevData) {
       config.previous = {
         label: String(prevYear),
-        color: '#a3a3a3', // neutral-400
+        color: 'var(--chart-2)',
       }
     }
     return config
