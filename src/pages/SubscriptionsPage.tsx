@@ -20,9 +20,7 @@ import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
 import { ManagePaymentSourcesDialog } from '@/components/ManagePaymentSourcesDialog'
 import { SubscriptionCalendar } from '@/components/SubscriptionCalendar'
 import { DaysBadge } from '@/components/DaysBadge'
-import { SectionCard } from '@/components/SectionCard'
 import { TableContainer } from '@/components/TableContainer'
-import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
 import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
@@ -234,36 +232,6 @@ function SubscriptionTable({
   )
 }
 
-// ─── Upcoming payments ────────────────────────────────────────────────────────
-
-function UpcomingPayments({ subscriptions }: { subscriptions: Subscription[] }) {
-  const sorted = [...subscriptions]
-    .map(sub => ({
-      id: sub.id,
-      name: sub.name,
-      amount: sub.amount,
-      icon_url: sub.icon_url,
-      days: daysUntilNextPayment(parseLocalDate(sub.start_date), sub.billing_cycle),
-      next: nextPaymentDate(parseLocalDate(sub.start_date), sub.billing_cycle),
-    }))
-    .sort((a, b) => a.days - b.days)
-    .slice(0, 8)
-
-  if (sorted.length === 0) {
-    return (
-      <SectionCard title="Предстоящи плащания" className="sm:col-span-2">
-        <p className="py-8 text-center text-sm text-muted-foreground">Няма предстоящи плащания</p>
-      </SectionCard>
-    )
-  }
-
-  return (
-    <SectionCard title="Предстоящи плащания" className="sm:col-span-2">
-      <UpcomingPaymentsList items={sorted} />
-    </SectionCard>
-  )
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function SubscriptionsPage() {
@@ -432,14 +400,11 @@ export function SubscriptionsPage() {
         </div>
       )}
 
-      {/* Calendar + upcoming payments */}
+      {/* Calendar */}
       {loading ? (
-        <Skeleton className="h-[320px] rounded-xl" />
+        <Skeleton className="h-[460px] rounded-xl" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-          <SubscriptionCalendar subscriptions={activeSubscriptions} />
-          <UpcomingPayments subscriptions={activeSubscriptions} />
-        </div>
+        <SubscriptionCalendar subscriptions={activeSubscriptions} />
       )}
 
       {/* Subscription tabs + table */}
