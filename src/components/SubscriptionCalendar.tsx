@@ -81,9 +81,9 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
 
   return (
     <RadixTooltip.Provider delayDuration={300}>
-    <div className="rounded-lg border bg-card p-4 space-y-3">
+    <div className="rounded-lg border bg-card p-4">
       {/* Header — month + nav */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -103,7 +103,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
       </div>
 
       {/* Day-of-week labels */}
-      <div className="grid grid-cols-7 text-center">
+      <div className="grid grid-cols-7 text-center border-b border-border">
         {DAY_LABELS.map(label => (
           <div key={label} className="text-[11px] font-medium text-muted-foreground py-1">
             {label}
@@ -112,10 +112,10 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 bg-border gap-px">
         {/* Leading empty cells */}
         {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`empty-${i}`} />
+          <div key={`empty-${i}`} className="bg-card min-h-[100px]" />
         ))}
 
         {/* Day cells */}
@@ -129,7 +129,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
               <div
                 key={day}
                 className={[
-                  'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm',
+                  'flex flex-col items-center gap-1.5 bg-card min-h-[100px] py-3.5 text-sm',
                   todayDay ? 'font-bold' : '',
                 ].join(' ')}
               >
@@ -149,7 +149,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                 <button
                   type="button"
                   className={[
-                    'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm transition-colors',
+                    'flex flex-col items-center gap-1.5 bg-card min-h-[100px] py-3.5 w-full text-sm transition-colors',
                     'hover:bg-accent cursor-pointer',
                     todayDay ? 'font-bold' : '',
                   ].join(' ')}
@@ -215,7 +215,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
 
         {/* Trailing empty cells to always fill 6 rows */}
         {Array.from({ length: 42 - startOffset - daysInMonth }).map((_, i) => (
-          <div key={`trail-${i}`} />
+          <div key={`trail-${i}`} className="bg-card min-h-[100px]" />
         ))}
       </div>
 
