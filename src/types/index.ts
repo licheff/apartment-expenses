@@ -20,6 +20,7 @@ export interface Expense {
   year: number
   month: number
   amount: number
+  notes: string | null
   created_at: string
   updated_at: string
 }
@@ -49,8 +50,9 @@ export interface YearlyExpense {
 export interface MonthRow {
   month: number
   monthName: string
-  expenses: Record<string, number> // category_id -> amount
+  expenses: Record<string, number>   // category_id -> amount
   expenseIds: Record<string, string> // category_id -> expense id
+  expenseNotes: Record<string, string | null> // category_id -> note
   total: number
 }
 
