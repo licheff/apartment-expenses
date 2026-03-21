@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, CreditCard, Plus } from 'lucide-react'
 import { Header } from '@/components/Header'
@@ -130,7 +130,10 @@ function SubscriptionTable({
   const [sortKey, setSortKey] = useState<SortKey>('next_payment')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
 
-  const sorted = sortSubscriptions(subscriptions, sortKey, sortDir)
+  const sorted = useMemo(
+    () => sortSubscriptions(subscriptions, sortKey, sortDir),
+    [subscriptions, sortKey, sortDir]
+  )
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
