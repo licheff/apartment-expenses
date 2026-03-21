@@ -56,7 +56,7 @@ export interface MonthRow {
 
 // ─── Subscriptions ──────────────────────────────────────────────────────────
 
-export type BillingCycle = 'weekly' | 'monthly' | 'quarterly' | 'bi_annual' | 'yearly'
+export type BillingCycle = 'weekly' | 'monthly' | 'quarterly' | 'bi_annual' | 'yearly' | 'biennial' | 'triennial'
 
 export interface PaymentSource {
   id: string
