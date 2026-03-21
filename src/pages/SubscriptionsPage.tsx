@@ -77,6 +77,41 @@ function sortSubscriptions(subs: Subscription[], key: SortKey, dir: SortDir): Su
   return sorted
 }
 
+function SortableHead({
+  label,
+  sortKey,
+  activeSortKey,
+  sortDir,
+  onSort,
+  className,
+}: {
+  label: string
+  sortKey: SortKey
+  activeSortKey: SortKey
+  sortDir: SortDir
+  onSort: (key: SortKey) => void
+  className?: string
+}) {
+  const isActive = sortKey === activeSortKey
+  return (
+    <TableHead
+      className={cn('cursor-pointer select-none group', className)}
+      onClick={() => onSort(sortKey)}
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {isActive ? (
+          sortDir === 'asc'
+            ? <ArrowUp className="h-4 w-4 text-foreground" />
+            : <ArrowDown className="h-4 w-4 text-foreground" />
+        ) : (
+          <ArrowUpDown className="h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+        )}
+      </div>
+    </TableHead>
+  )
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatDate(date: Date): string {
