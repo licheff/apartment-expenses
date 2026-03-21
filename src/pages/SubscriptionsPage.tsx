@@ -127,6 +127,20 @@ function SubscriptionTable({
   subscriptions: Subscription[]
   onEdit: (sub: Subscription) => void
 }) {
+  const [sortKey, setSortKey] = useState<SortKey>('next_payment')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
+
+  const sorted = sortSubscriptions(subscriptions, sortKey, sortDir)
+
+  function handleSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
   if (subscriptions.length === 0) {
     return (
       <TableContainer className="py-12 text-center text-sm text-muted-foreground">
@@ -141,16 +155,42 @@ function SubscriptionTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-12" />
-            <TableHead>Наименование</TableHead>
-            <TableHead>Сума</TableHead>
-            <TableHead className="hidden sm:table-cell">Периодичност</TableHead>
-            <TableHead className="hidden sm:table-cell">Следващо плащане</TableHead>
+            <SortableHead
+              label="Наименование"
+              sortKey="name"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+            />
+            <SortableHead
+              label="Сума"
+              sortKey="amount"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+            />
+            <SortableHead
+              label="Периодичност"
+              sortKey="billing_cycle"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+              className="hidden sm:table-cell"
+            />
+            <SortableHead
+              label="Следващо плащане"
+              sortKey="next_payment"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+              className="hidden sm:table-cell"
+            />
             <TableHead className="hidden sm:table-cell">Начин на плащане</TableHead>
             <TableHead className="w-10" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {subscriptions.map(sub => {
+          {sorted.map(sub => {
             const start = parseLocalDate(sub.start_date)
             const next = nextPaymentDate(start, sub.billing_cycle)
             const days = daysUntilNextPayment(start, sub.billing_cycle)
