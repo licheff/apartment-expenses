@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Receipt, ArrowRight } from 'lucide-react'
+import { toast } from 'sonner'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SectionCard } from '@/components/SectionCard'
 import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
+import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
+import { usePaymentSources } from '@/hooks/usePaymentSources'
+import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
+import type { Subscription, CreateSubscriptionInput } from '@/types'
 import {
   daysUntilNextPayment,
   nextPaymentDate,
@@ -15,7 +20,17 @@ import { formatCurrency } from '@/lib/constants'
 
 
 export function OverviewPage() {
-  const { activeSubscriptions, totalPerMonth, totalPerYear, loading } = useSubscriptions()
+  const { activeSubscriptions, totalPerMonth, totalPerYear, loading, update, remove } = useSubscriptions()
+  const { paymentSources } = usePaymentSources()
+
+  const [editOpen, setEditOpen] = useState(false)
+  const [editingSub, setEditingSub] = useState<Subscription | null>(null)
+
+  const {
+    priceChanges,
+    loading: priceChangesLoading,
+    recordPriceChange,
+  } = useSubscriptionPriceChanges(editingSub?.id ?? null)
 
   const upcoming = [...activeSubscriptions]
     .map(sub => ({
@@ -28,6 +43,42 @@ export function OverviewPage() {
     }))
     .sort((a, b) => a.days - b.days)
     .slice(0, 5)
+
+  const handleCardSelect = (id: string) => {
+    const sub = activeSubscriptions.find(s => s.id === id) ?? null
+    setEditingSub(sub)
+    setEditOpen(true)
+  }
+
+  const handleUpdate = async (id: string, input: Partial<CreateSubscriptionInput>) => {
+    const { error } = await update(id, input)
+    if (error) {
+      toast.error('Грешка при запазване')
+    } else {
+      toast.success('Промените са запазени')
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    const { error } = await remove(id)
+    if (error) {
+      toast.error('Грешка при изтриване')
+    } else {
+      toast.success('Абонаментът е изтрит')
+    }
+  }
+
+  const handleRecordPriceChange = async (input: {
+    amount: number
+    previous_amount: number | null
+    effective_from: string
+  }) => {
+    const { error } = await recordPriceChange(input)
+    if (error) {
+      toast.error('Грешка при записване на промяната')
+    }
+    return { error }
+  }
 
   return (
     <>
@@ -69,9 +120,18 @@ export function OverviewPage() {
       {loading ? (
         <Skeleton className="h-[200px] rounded-xl" />
       ) : upcoming.length > 0 ? (
-        <SectionCard title="Предстоящи плащания" className="overflow-visible">
-          <UpcomingPaymentsList items={upcoming} />
-        </SectionCard>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold">Предстоящи плащания</h2>
+            <Link
+              to="/subscriptions"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              покажи всички
+            </Link>
+          </div>
+          <UpcomingPaymentsList items={upcoming} onSelect={handleCardSelect} />
+        </div>
       ) : null}
 
       {/* Quick link to Expenses */}
@@ -91,6 +151,18 @@ export function OverviewPage() {
         <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
       </Link>
     </div>
+
+    <EditSubscriptionDialog
+      open={editOpen}
+      onOpenChange={setEditOpen}
+      subscription={editingSub}
+      paymentSources={paymentSources}
+      priceChanges={priceChanges}
+      priceChangesLoading={priceChangesLoading}
+      onSave={handleUpdate}
+      onDelete={handleDelete}
+      onRecordPriceChange={handleRecordPriceChange}
+    />
     </>
   )
 }

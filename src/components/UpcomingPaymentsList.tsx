@@ -5,6 +5,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from '@/components/ui/carousel'
 
 export interface UpcomingItem {
@@ -18,34 +20,39 @@ export interface UpcomingItem {
 
 interface UpcomingPaymentsListProps {
   items: UpcomingItem[]
+  onSelect: (id: string) => void
 }
 
-export function UpcomingPaymentsList({ items }: UpcomingPaymentsListProps) {
+export function UpcomingPaymentsList({ items, onSelect }: UpcomingPaymentsListProps) {
   return (
-    <Carousel
-      opts={{ align: 'start', dragFree: true }}
-      className="px-4 py-3"
-    >
+    <Carousel opts={{ align: 'start', dragFree: true }}>
       <CarouselContent className="-ml-3">
         {items.map(({ id, name, days, next, amount, icon_url }) => (
-          <CarouselItem key={id} className="pl-3 basis-1/2 sm:basis-1/3">
-            <div className="border rounded-lg p-3 flex flex-col items-center gap-2 min-h-[140px] bg-card">
+          <CarouselItem key={id} className="pl-3 basis-1/3">
+            <button
+              onClick={() => onSelect(id)}
+              className="relative w-full text-left border rounded-lg p-4 flex flex-col gap-2 min-h-[140px] bg-card hover:bg-accent transition-colors cursor-pointer"
+            >
+              <div className="absolute top-4 right-4">
+                <DaysBadge days={days} />
+              </div>
               <Avatar size="md">
                 {icon_url && <AvatarImage src={icon_url} />}
                 <AvatarFallback>{name[0]?.toUpperCase()}</AvatarFallback>
               </Avatar>
-              <p className="text-sm font-medium text-center line-clamp-2 w-full">{name}</p>
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-sm font-medium line-clamp-2 w-full">{name}</p>
+              <p className="text-xs text-muted-foreground">
                 {next.toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
-              <div className="flex flex-row items-center justify-center gap-2 mt-auto">
+              <div className="flex flex-row items-center gap-2 mt-auto">
                 <span className="text-sm tabular-nums">{formatCurrency(amount)}</span>
-                <DaysBadge days={days} />
               </div>
-            </div>
+            </button>
           </CarouselItem>
         ))}
       </CarouselContent>
+      <CarouselPrevious className="left-0 -translate-x-1/2" />
+      <CarouselNext className="right-0 translate-x-1/2" />
     </Carousel>
   )
 }

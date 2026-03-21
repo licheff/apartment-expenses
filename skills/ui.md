@@ -34,8 +34,33 @@ Use `<SectionCard>` from `@/components/SectionCard` for any panel with a labeled
 
 ## Upcoming Payments
 
-Use `<UpcomingPaymentsList>` from `@/components/UpcomingPaymentsList`. Accepts `items: UpcomingItem[]`.
-Use `<DaysBadge>` from `@/components/DaysBadge` for urgency color coding.
+Use `<UpcomingPaymentsList>` from `@/components/UpcomingPaymentsList`.
+
+Props:
+- `items: UpcomingItem[]` — sorted, pre-sliced list (OverviewPage slices to 5)
+- `onSelect: (id: string) => void` — called when a card is clicked; caller handles opening the edit dialog
+
+The component renders a horizontal **shadcn Carousel** (Embla-based) of portrait cards — `basis-1/3` always (3 cards visible, rest scrollable by drag), no prev/next buttons.
+
+**Section pattern** — render without `SectionCard`. Use a free-floating header + carousel:
+
+```tsx
+<div className="space-y-3">
+  <div className="flex items-center justify-between">
+    <h2 className="text-sm font-semibold">Предстоящи плащания</h2>
+    <Link to="/subscriptions" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+      покажи всички
+    </Link>
+  </div>
+  <UpcomingPaymentsList items={upcoming} onSelect={handleCardSelect} />
+</div>
+```
+
+No `overflow-visible` needed — `SectionCard` is not used here.
+
+**Edit dialog** — `OverviewPage` manages `editOpen`/`editingSub` state and mounts `EditSubscriptionDialog` at the fragment root (same pattern as `SubscriptionsPage`). Requires `usePaymentSources()` and `useSubscriptionPriceChanges(editingSub?.id ?? null)`.
+
+The carousel uses custom gutter spacing (`-ml-3` / `pl-3`) that differs from the shadcn default (`-ml-4` / `pl-4`). If `carousel.tsx` is ever regenerated via the shadcn CLI, re-apply these overrides in `UpcomingPaymentsList.tsx`.
 
 ## Badge Conventions
 
