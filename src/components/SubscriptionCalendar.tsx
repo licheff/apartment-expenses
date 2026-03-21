@@ -86,7 +86,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-sm">
+        <span className="font-semibold text-[15px]">
           {MONTH_NAMES[month]} {year}
         </span>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}>
@@ -122,24 +122,24 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
               key={day}
               onClick={() => setSelectedDay(isSelected ? null : day)}
               className={[
-                'flex flex-col items-center gap-0.5 rounded-md py-1 text-sm transition-colors',
+                'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm transition-colors',
                 hasSubs ? 'cursor-pointer hover:bg-accent' : 'cursor-default',
                 isSelected ? 'bg-accent' : '',
                 todayDay && !isSelected ? 'font-bold' : '',
               ].join(' ')}
             >
               <span className={todayDay
-                ? 'flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold'
-                : 'flex h-6 w-6 items-center justify-center text-xs'
+                ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
+                : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
               }>
                 {day}
               </span>
 
               {/* Up to 3 subscription icons (or colored fallback dots) */}
               {hasSubs && (
-                <div className="flex gap-0.5">
+                <div className="flex gap-1.5">
                   {subs.slice(0, 3).map(sub => (
-                    <Avatar key={sub.id} size="sm">
+                    <Avatar key={sub.id} size="md">
                       {sub.icon_url && <AvatarImage src={sub.icon_url} />}
                       {/* Fallback keeps the original per-subscription accent color */}
                       <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
@@ -148,7 +148,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                     </Avatar>
                   ))}
                   {subs.length > 3 && (
-                    <span className="h-4 w-4 rounded-lg bg-muted-foreground" />
+                    <span className="h-8 w-8 rounded-lg bg-muted-foreground" />
                   )}
                 </div>
               )}
