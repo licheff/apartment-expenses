@@ -147,7 +147,7 @@ export function EditExpenseDialog({
                     onKeyDown={e => { if (e.key === 'Enter') commitExpression(cat.id, val) }}
                     onBlur={() => commitExpression(cat.id, val)}
                     placeholder="0.00"
-                    className={shakingFields[cat.id] ? 'animate-shake' : 'max-w-[200px]' }
+                    className={`max-w-[200px] ${shakingFields[cat.id] ? 'animate-shake' : ''}`}
                   />
                   {cur === 'BGN' && val && Number(val) > 0 && ![...val].some(c => '+-*/()'.includes(c)) && (
                     <p className="text-xs text-muted-foreground text-right">
