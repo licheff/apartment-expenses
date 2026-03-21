@@ -27,7 +27,7 @@ import { uploadSubscriptionIcon } from '@/lib/storage'
 
 type Currency = 'EUR' | 'USD'
 
-const BILLING_CYCLES: BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'bi_annual', 'yearly']
+const BILLING_CYCLES: BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'bi_annual', 'yearly', 'biennial', 'triennial']
 
 function todayStr() {
   const d = new Date()
