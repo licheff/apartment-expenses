@@ -100,7 +100,7 @@ export function useExpenses(apartmentId: string, year: number, categories: Categ
     return { error, count: rows.length }
   }
 
-  const bulkUpsert = async (rows: { category_id: string; year: number; month: number; amount: number }[]) => {
+  const bulkUpsert = async (rows: { category_id: string; year: number; month: number; amount: number; notes?: string | null }[]) => {
     const withTimestamp = rows.map(r => ({ ...r, updated_at: new Date().toISOString() }))
     const { error } = await supabase
       .from('expenses')
@@ -118,10 +118,12 @@ export function useExpenses(apartmentId: string, year: number, categories: Categ
     const monthExpenses = expenses.filter(e => e.month === month)
     const expenseMap: Record<string, number> = {}
     const idMap: Record<string, string> = {}
+    const notesMap: Record<string, string | null> = {}
 
     for (const exp of monthExpenses) {
       expenseMap[exp.category_id] = exp.amount
       idMap[exp.category_id] = exp.id
+      notesMap[exp.category_id] = exp.notes ?? null
     }
 
     const total = Object.values(expenseMap).reduce((sum, a) => sum + a, 0)
@@ -131,6 +133,7 @@ export function useExpenses(apartmentId: string, year: number, categories: Categ
       monthName: MONTH_NAMES[month],
       expenses: expenseMap,
       expenseIds: idMap,
+      expenseNotes: notesMap,
       total,
     }
   })
