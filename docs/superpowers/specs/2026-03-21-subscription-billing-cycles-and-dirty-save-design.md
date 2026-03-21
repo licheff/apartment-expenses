@@ -72,7 +72,7 @@ const isDirty = !!subscription && (
   isRebate !== subscription.is_rebate ||
   iconFile !== null ||
   iconRemoved ||
-  (showPriceUpdate && Number(newPrice) > 0)
+  (showPriceUpdate && Number(newPrice) > 0 && !!effectiveFrom)
 )
 
 const canSave = isDirty && name.trim() && startDate && priceUpdateValid
@@ -90,7 +90,7 @@ const canSave = isDirty && name.trim() && startDate && priceUpdateValid
 | isRebate | differs from `subscription.is_rebate` |
 | iconFile | any file selected (`!== null`) |
 | iconRemoved | icon was explicitly removed |
-| price change | price update form open AND valid new price entered |
+| price change | price update form open AND valid new price entered AND effective date set |
 
 **Key behaviour:** reverting all fields back to their original values disables Save again.
 
