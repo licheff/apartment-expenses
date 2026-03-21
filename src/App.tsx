@@ -190,13 +190,14 @@ function AuthenticatedApp() {
   }, [])
 
   const handleEditSave = useCallback(
-    async (entries: { categoryId: string; amount: number }[]) => {
+    async (entries: { categoryId: string; amount: number; notes: string | null }[]) => {
       if (editMonth === null) return
       const rows = entries.map(e => ({
         category_id: e.categoryId,
         year: selectedYear,
         month: editMonth,
         amount: e.amount,
+        notes: e.notes,
       }))
       const { error } = await bulkUpsert(rows)
       if (error) {
