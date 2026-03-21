@@ -111,7 +111,21 @@ export function EditSubscriptionDialog({
   }
 
   const priceUpdateValid = !showPriceUpdate || (Number(newPrice) > 0 && effectiveFrom)
-  const canSave = name.trim() && startDate && priceUpdateValid
+
+  const isDirty = !!subscription && (
+    name !== subscription.name ||
+    cycle !== subscription.billing_cycle ||
+    sourceId !== (subscription.payment_source_id ?? '__none__') ||
+    startDate !== subscription.start_date ||
+    notes !== (subscription.notes ?? '') ||
+    isActive !== subscription.is_active ||
+    isRebate !== subscription.is_rebate ||
+    iconFile !== null ||
+    iconRemoved ||
+    (showPriceUpdate && Number(newPrice) > 0 && !!effectiveFrom)
+  )
+
+  const canSave = isDirty && name.trim() && startDate && priceUpdateValid
 
   const handleSave = async () => {
     if (!canSave || !subscription) return
