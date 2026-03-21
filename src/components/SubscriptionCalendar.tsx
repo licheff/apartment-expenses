@@ -124,40 +124,92 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
           const hasSubs = subs.length > 0
           const todayDay = isToday(day)
 
-          return (
-            <button
-              key={day}
-              className={[
-                'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm transition-colors',
-                hasSubs ? 'cursor-pointer hover:bg-accent' : 'cursor-default',
-                todayDay ? 'font-bold' : '',
-              ].join(' ')}
-            >
-              <span className={todayDay
-                ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
-                : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
-              }>
-                {day}
-              </span>
+          if (!hasSubs) {
+            return (
+              <div
+                key={day}
+                className={[
+                  'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm',
+                  todayDay ? 'font-bold' : '',
+                ].join(' ')}
+              >
+                <span className={todayDay
+                  ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
+                  : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
+                }>
+                  {day}
+                </span>
+              </div>
+            )
+          }
 
-              {/* Up to 3 subscription icons (or colored fallback dots) */}
-              {hasSubs && (
-                <div className="flex gap-1.5">
-                  {subs.slice(0, 3).map(sub => (
-                    <Avatar key={sub.id} size="md">
-                      {sub.icon_url && <AvatarImage src={sub.icon_url} />}
-                      {/* Fallback keeps the original per-subscription accent color */}
-                      <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
-                        {sub.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                  {subs.length > 3 && (
-                    <span className="h-8 w-8 rounded-lg bg-muted-foreground" />
-                  )}
-                </div>
-              )}
-            </button>
+          return (
+            <RadixTooltip.Root key={day}>
+              <RadixTooltip.Trigger asChild>
+                <button
+                  type="button"
+                  className={[
+                    'flex flex-col items-center gap-1.5 rounded-md py-3.5 text-sm transition-colors',
+                    'hover:bg-accent cursor-pointer',
+                    todayDay ? 'font-bold' : '',
+                  ].join(' ')}
+                >
+                  <span className={todayDay
+                    ? 'flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold'
+                    : 'flex h-[34px] w-[34px] items-center justify-center text-sm'
+                  }>
+                    {day}
+                  </span>
+                  <div className="flex gap-1.5">
+                    {subs.slice(0, 3).map(sub => (
+                      <Avatar key={sub.id} size="md">
+                        {sub.icon_url && <AvatarImage src={sub.icon_url} />}
+                        <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
+                          {sub.name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                    {subs.length > 3 && (
+                      <span className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground">
+                        +{subs.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              </RadixTooltip.Trigger>
+              <RadixTooltip.Portal>
+                <RadixTooltip.Content
+                  side="top"
+                  align="center"
+                  sideOffset={6}
+                  avoidCollisions
+                  className="z-50 rounded-lg border bg-popover text-popover-foreground shadow-md p-3 min-w-[180px] max-w-[240px]"
+                >
+                  <p className="text-xs font-medium text-muted-foreground mb-2">
+                    {day} {MONTH_NAMES[month]}
+                  </p>
+                  <ul className="space-y-1.5">
+                    {subs.map(sub => (
+                      <li key={sub.id} className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <Avatar size="sm">
+                            {sub.icon_url && <AvatarImage src={sub.icon_url} />}
+                            <AvatarFallback className={`${colorMap.get(sub.id)} text-white`}>
+                              {sub.name[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm">{sub.name}</span>
+                        </div>
+                        <span className="text-sm tabular-nums text-muted-foreground">
+                          {formatCurrency(sub.amount)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <RadixTooltip.Arrow className="fill-border" />
+                </RadixTooltip.Content>
+              </RadixTooltip.Portal>
+            </RadixTooltip.Root>
           )
         })}
 
