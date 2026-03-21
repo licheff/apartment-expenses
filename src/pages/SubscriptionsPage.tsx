@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
-import { ChevronRight, CreditCard, Plus } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, CreditCard, Plus } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,7 @@ import { UpcomingPaymentsList } from '@/components/UpcomingPaymentsList'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
 import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
-import type { CreateSubscriptionInput, Subscription } from '@/types'
+import type { BillingCycle, CreateSubscriptionInput, Subscription } from '@/types'
 import {
   cycleLabelBg,
   daysUntilNextPayment,
@@ -35,6 +35,47 @@ import {
 } from '@/lib/subscriptions'
 import { formatCurrency } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+
+// ─── Sorting ──────────────────────────────────────────────────────────────────
+
+type SortKey = 'name' | 'amount' | 'billing_cycle' | 'next_payment'
+type SortDir = 'asc' | 'desc'
+
+const CYCLE_ORDER: Record<BillingCycle, number> = {
+  weekly: 1,
+  monthly: 2,
+  quarterly: 3,
+  bi_annual: 4,
+  yearly: 5,
+  biennial: 6,
+  triennial: 7,
+}
+
+function sortSubscriptions(subs: Subscription[], key: SortKey, dir: SortDir): Subscription[] {
+  if (key === 'next_payment') {
+    const withDates = subs.map(s => ({
+      sub: s,
+      next: nextPaymentDate(parseLocalDate(s.start_date), s.billing_cycle),
+    }))
+    withDates.sort((a, b) => a.next.getTime() - b.next.getTime())
+    const result = withDates.map(({ sub }) => sub)
+    return dir === 'desc' ? result.reverse() : result
+  }
+
+  const sorted = [...subs]
+  sorted.sort((a, b) => {
+    let cmp = 0
+    if (key === 'name') {
+      cmp = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    } else if (key === 'amount') {
+      cmp = a.amount - b.amount
+    } else if (key === 'billing_cycle') {
+      cmp = CYCLE_ORDER[a.billing_cycle] - CYCLE_ORDER[b.billing_cycle]
+    }
+    return dir === 'desc' ? -cmp : cmp
+  })
+  return sorted
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
