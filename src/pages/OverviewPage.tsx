@@ -69,7 +69,7 @@ export function OverviewPage() {
       {loading ? (
         <Skeleton className="h-[200px] rounded-xl" />
       ) : upcoming.length > 0 ? (
-        <SectionCard title="Предстоящи плащания">
+        <SectionCard title="Предстоящи плащания" className="overflow-visible">
           <UpcomingPaymentsList items={upcoming} />
         </SectionCard>
       ) : null}
