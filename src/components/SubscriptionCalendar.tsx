@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Tooltip as RadixTooltip } from 'radix-ui'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { MONTH_NAMES } from '@/lib/constants'
+import { MONTH_NAMES, formatCurrency } from '@/lib/constants'
 import { parseLocalDate, paymentDatesInMonth } from '@/lib/subscriptions'
 import type { Subscription } from '@/types'
 
@@ -54,6 +54,12 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
     return map
   }, [subscriptions, year, month])
 
+  const monthTotal = useMemo(() => {
+    let total = 0
+    paymentMap.forEach(subs => subs.forEach(sub => { total += sub.amount }))
+    return total
+  }, [paymentMap])
+
   // Calendar grid math
   // JS getDay(): 0=Sun, 1=Mon … 6=Sat → convert to Monday-first offset
   const firstDayOfMonth = new Date(year, month - 1, 1)
@@ -81,9 +87,16 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-[15px]">
-          {MONTH_NAMES[month]} {year}
-        </span>
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="font-semibold text-[15px]">
+            {MONTH_NAMES[month]} {year}
+          </span>
+          {monthTotal > 0 && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatCurrency(monthTotal)}
+            </span>
+          )}
+        </div>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}>
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -147,6 +160,11 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
             </button>
           )
         })}
+
+        {/* Trailing empty cells to always fill 6 rows */}
+        {Array.from({ length: 42 - startOffset - daysInMonth }).map((_, i) => (
+          <div key={`trail-${i}`} />
+        ))}
       </div>
 
     </div>
