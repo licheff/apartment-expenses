@@ -10,17 +10,25 @@ import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
 import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
+import { SpendingTrendChart } from '@/components/SpendingTrendChart'
+import { useOverviewStats } from '@/hooks/useOverviewStats'
 import type { Subscription, CreateSubscriptionInput } from '@/types'
 import {
   daysUntilNextPayment,
   nextPaymentDate,
   parseLocalDate,
 } from '@/lib/subscriptions'
-import { formatCurrency } from '@/lib/constants'
+import { formatCurrency, MONTH_NAMES } from '@/lib/constants'
 
 
 export function OverviewPage() {
-  const { activeSubscriptions, totalPerMonth, totalPerYear, loading, update, remove } = useSubscriptions()
+  const { activeSubscriptions, totalPerMonth, loading: subscriptionsLoading, update, remove } = useSubscriptions()
+  const {
+    lastMonthUtilities,
+    lastMonth,
+    monthlyUtilityTotals,
+    loading: overviewLoading,
+  } = useOverviewStats()
   const { paymentSources } = usePaymentSources()
 
   const [editOpen, setEditOpen] = useState(false)
@@ -84,40 +92,44 @@ export function OverviewPage() {
     <>
     <Header title="Преглед" />
     <div className="mx-auto max-w-[1000px] px-4 py-6 space-y-6">
-      {/* Subscription stats */}
-      {loading ? (
-        <Skeleton className="h-[80px] rounded-xl" />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="py-0">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Абонаменти / месец</p>
-              <p className="text-2xl font-bold tabular-nums leading-tight">
-                {formatCurrency(totalPerMonth)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="py-0">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Абонаменти / година</p>
-              <p className="text-2xl font-bold tabular-nums leading-tight">
-                {formatCurrency(totalPerYear)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="py-0">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Активни абонаменти</p>
-              <p className="text-2xl font-bold tabular-nums leading-tight">
-                {activeSubscriptions.length}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {overviewLoading || subscriptionsLoading ? (
+          <>
+            <Skeleton className="h-[80px] rounded-xl" />
+            <Skeleton className="h-[80px] rounded-xl" />
+          </>
+        ) : (
+          <>
+            <Card className="py-0">
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">
+                  Комунални за {MONTH_NAMES[lastMonth].toLowerCase()}
+                </p>
+                <p className="text-2xl font-bold tabular-nums leading-tight">
+                  {formatCurrency(lastMonthUtilities)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="py-0">
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">Абонаменти / месец</p>
+                <p className="text-2xl font-bold tabular-nums leading-tight">
+                  {formatCurrency(totalPerMonth)}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {activeSubscriptions.length === 1
+                    ? '1 активен абонамент'
+                    : `${activeSubscriptions.length} активни абонамента`}
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
 
       {/* Upcoming payments */}
-      {loading ? (
+      {subscriptionsLoading ? (
         <Skeleton className="h-[200px] rounded-xl" />
       ) : upcoming.length > 0 ? (
         <div className="space-y-3">
@@ -133,6 +145,16 @@ export function OverviewPage() {
           <UpcomingPaymentsList items={upcoming} onSelect={handleCardSelect} />
         </div>
       ) : null}
+
+      {/* Spending trend */}
+      {overviewLoading || subscriptionsLoading ? (
+        <Skeleton className="h-[280px] rounded-xl" />
+      ) : (
+        <SpendingTrendChart
+          monthlyUtilityTotals={monthlyUtilityTotals}
+          subscriptionsPerMonth={totalPerMonth}
+        />
+      )}
 
       {/* Quick link to Expenses */}
       <Link
