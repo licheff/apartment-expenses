@@ -14,8 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MONTH_NAMES_SHORT } from '@/lib/constants'
 
 interface SpendingTrendChartProps {
-  monthlyUtilityTotals: Record<number, number>  // sparse; ?? 0 applied internally
-  subscriptionsPerMonth: number
+  monthlyUtilityTotals: Record<number, number>      // sparse; ?? 0 applied internally
+  monthlySubscriptionTotals: Record<number, number> // actual amounts due per month
 }
 
 const chartConfig: ChartConfig = {
@@ -25,7 +25,7 @@ const chartConfig: ChartConfig = {
 
 export function SpendingTrendChart({
   monthlyUtilityTotals,
-  subscriptionsPerMonth,
+  monthlySubscriptionTotals,
 }: SpendingTrendChartProps) {
   const [collapsed, setCollapsed] = useState(false)
   // false = open/visible; {!collapsed && <content />}
@@ -35,9 +35,9 @@ export function SpendingTrendChart({
       Array.from({ length: 12 }, (_, i) => ({
         month: MONTH_NAMES_SHORT[i + 1],          // MONTH_NAMES_SHORT keys are 1–12
         utilities: monthlyUtilityTotals[i + 1] ?? 0,
-        subscriptions: subscriptionsPerMonth,
+        subscriptions: monthlySubscriptionTotals[i + 1] ?? 0,
       })),
-    [monthlyUtilityTotals, subscriptionsPerMonth],
+    [monthlyUtilityTotals, monthlySubscriptionTotals],
   )
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Receipt, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
@@ -17,12 +17,13 @@ import {
   daysUntilNextPayment,
   nextPaymentDate,
   parseLocalDate,
+  paymentDatesInMonth,
 } from '@/lib/subscriptions'
 import { formatCurrency, MONTH_NAMES } from '@/lib/constants'
 
 
 export function OverviewPage() {
-  const { activeSubscriptions, totalPerMonth, loading: subscriptionsLoading, update, remove } = useSubscriptions()
+  const { activeSubscriptions, loading: subscriptionsLoading, update, remove } = useSubscriptions()
   const {
     lastMonthUtilities,
     lastMonth,
@@ -39,6 +40,26 @@ export function OverviewPage() {
     loading: priceChangesLoading,
     recordPriceChange,
   } = useSubscriptionPriceChanges(editingSub?.id ?? null)
+
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1
+
+  // Actual amounts due per calendar month (not averages)
+  const monthlySubscriptionTotals = useMemo(() => {
+    const totals: Record<number, number> = {}
+    for (let m = 1; m <= 12; m++) {
+      totals[m] = activeSubscriptions
+        .filter(s => !s.is_rebate)
+        .reduce((sum, s) => {
+          const dates = paymentDatesInMonth(parseLocalDate(s.start_date), s.billing_cycle, currentYear, m)
+          return sum + dates.length * s.amount
+        }, 0)
+    }
+    return totals
+  }, [activeSubscriptions, currentYear])
+
+  const totalThisMonth = monthlySubscriptionTotals[currentMonth] ?? 0
 
   const upcoming = [...activeSubscriptions]
     .map(sub => ({
@@ -113,9 +134,11 @@ export function OverviewPage() {
             </Card>
             <Card className="py-0">
               <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Абонаменти / месец</p>
+                <p className="text-sm text-muted-foreground">
+                  Абонаменти за {MONTH_NAMES[currentMonth].toLowerCase()}
+                </p>
                 <p className="text-2xl font-bold tabular-nums leading-tight">
-                  {formatCurrency(totalPerMonth)}
+                  {formatCurrency(totalThisMonth)}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {activeSubscriptions.length === 1
@@ -152,7 +175,7 @@ export function OverviewPage() {
       ) : (
         <SpendingTrendChart
           monthlyUtilityTotals={monthlyUtilityTotals}
-          subscriptionsPerMonth={totalPerMonth}
+          monthlySubscriptionTotals={monthlySubscriptionTotals}
         />
       )}
 
