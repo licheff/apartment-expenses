@@ -16,9 +16,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Currency | `skills/currency.md` | Storing, formatting, or converting amounts |
 | Business logic | `skills/business-logic.md` | paid_by_me calculations, rent tracking, expense upserts, month offset rule |
 | Automation | `skills/automation.md` | ePay.bg pipeline, providers table, Apps Script, bills table |
-| UI patterns | `skills/ui.md` | Tables, badges, layout, SectionCard, TableContainer, DaysBadge, UpcomingPaymentsList |
+| UI patterns | `skills/ui.md` | Tables, badges, layout, SectionCard, TableContainer, DaysBadge, carousels, upcoming payments |
 | TypeScript | `skills/typescript.md` | Avoiding strict-mode build errors |
 | Subscriptions | `skills/subscriptions.md` | Any work on subscriptions, recurring payments, subscription calendar, upcoming payments, payment sources |
+| Theming | `skills/theming.md` | CSS variables, color tokens, success/warning/chart colors, dark mode, zinc base palette |
 
 > See [ROADMAP.md](ROADMAP.md) for planned features — consult before making architectural decisions.
 
@@ -105,7 +106,7 @@ Use this to know which files to read before starting any task.
 | Feature | Key files |
 |---------|-----------|
 | Expense tracking | `pages/OverviewPage.tsx`, `components/ExpenseTable.tsx`, `components/AddExpenseDialog.tsx`, `components/EditExpenseDialog.tsx`, `hooks/useExpenses.ts`, `hooks/useRentPayments.ts` |
-| Subscriptions | `pages/SubscriptionsPage.tsx`, `components/AddSubscriptionDialog.tsx`, `components/EditSubscriptionDialog.tsx`, `components/SubscriptionCalendar.tsx`, `hooks/useSubscriptions.ts`, `hooks/useSubscriptionPriceChanges.ts`, `lib/subscriptions.ts` |
+| Subscriptions | `pages/SubscriptionsPage.tsx`, `components/AddSubscriptionDialog.tsx`, `components/EditSubscriptionDialog.tsx`, `components/SubscriptionCalendar.tsx`, `components/UpcomingPaymentsList.tsx`, `hooks/useSubscriptions.ts`, `hooks/useSubscriptionPriceChanges.ts`, `lib/subscriptions.ts` |
 | Yearly expenses | `components/YearlyExpensesSection.tsx`, `hooks/useYearlyExpenses.ts` |
 | Summary & charts | `components/YearSummaryStrip.tsx`, `components/YearComparisonChart.tsx`, `hooks/useExpenseSummary.ts` |
 | Apartments & categories | `hooks/useApartments.ts`, `components/ManageCategoriesDialog.tsx`, `components/ApartmentTabs.tsx` |
@@ -113,8 +114,11 @@ Use this to know which files to read before starting any task.
 | Payment sources | `hooks/usePaymentSources.ts`, `components/ManagePaymentSourcesDialog.tsx` |
 | Currency & amounts | `lib/constants.ts`, `components/CurrencyToggle.tsx`, `components/MathOperatorButtons.tsx` |
 | Auth | `hooks/useAuth.ts`, `components/LoginPage.tsx` |
+| Year navigation | `components/YearSelector.tsx` |
 | Layout / shell | `App.tsx`, `components/Layout.tsx`, `components/Header.tsx`, `components/Sidebar.tsx` |
-| Shared UI primitives | `components/ui/*`, `lib/utils.ts` |
+| Shared UI primitives | `components/ui/*` (includes `carousel.tsx`), `lib/utils.ts` |
+| Icon upload | `components/IconUpload.tsx` |
+| Month indicator | `components/MonthIndicator.tsx` |
 | Automation (ePay.bg) | DB-only — see `skills/automation.md` |
 
 > All paths relative to `src/` (path alias `@/`).

@@ -32,4 +32,6 @@ dist-ssr
 *.sw?
 
 .env.local
-.DS_Store.superpowers/
+.DS_Store
+.superpowers/
+.mcp.json

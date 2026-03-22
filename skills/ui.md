@@ -40,7 +40,7 @@ Props:
 - `items: UpcomingItem[]` — sorted, pre-sliced list (OverviewPage slices to 5)
 - `onSelect: (id: string) => void` — called when a card is clicked; caller handles opening the edit dialog
 
-The component renders a horizontal **shadcn Carousel** (Embla-based) of portrait cards — `basis-1/3` always (3 cards visible, rest scrollable by drag), no prev/next buttons.
+The component renders a horizontal **shadcn Carousel** (Embla-based) of portrait cards — `basis-1/2` on mobile, `basis-1/3` on desktop (2 cards on mobile, 3 on desktop, rest scrollable by drag). Includes `CarouselPrevious` / `CarouselNext` nav arrows positioned to overlap the card edges.
 
 **Section pattern** — render without `SectionCard`. Use a free-floating header + carousel:
 
@@ -67,7 +67,7 @@ The carousel uses custom gutter spacing (`-ml-3` / `pl-3`) that differs from the
 **YoY comparison** (`variant="outline"` with color overrides):
 ```tsx
 isUp   → 'border-destructive/30 bg-destructive/10 text-destructive'
-isDown → 'border-green-600/30 bg-green-500/10 text-green-600 dark:text-green-500'
+isDown → 'border-success/30 bg-success/10 text-success'
 flat   → 'text-muted-foreground'
 ```
 Spending up = bad (red). Spending down = good (green). Use `ArrowUpRight` / `ArrowDownRight` / `Minus` icons.
