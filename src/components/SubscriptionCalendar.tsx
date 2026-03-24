@@ -80,7 +80,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
     day === today.getDate() && month === today.getMonth() + 1 && year === today.getFullYear()
 
   return (
-    <RadixTooltip.Provider delayDuration={300}>
+    <RadixTooltip.Provider delayDuration={200}>
     <div className="rounded-lg border bg-card p-4">
       {/* Header — month + nav */}
       <div className="flex items-center justify-between mb-3">
@@ -130,7 +130,7 @@ export function SubscriptionCalendar({ subscriptions }: SubscriptionCalendarProp
                 key={day}
                 className={[
                   'flex flex-col items-center gap-1.5 min-h-[100px] py-3.5 text-sm border-b-1 border-r-1 border-dotted border-border [&:nth-child(7n)]:border-r-0 [&:nth-child(n+36)]:border-b-0',
-                  todayDay ? 'bg-primary text-primary-foreground font-bold' : 'bg-card',
+                  todayDay ? 'bg-primary/12 text-primary font-bold' : 'bg-card',
                 ].join(' ')}
               >
                 <span className="flex h-[34px] w-[34px] items-center justify-center text-sm">
