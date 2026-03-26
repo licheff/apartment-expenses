@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export function Header({ title, actions, children }: HeaderProps) {
   return (
-    <header className="border-b bg-background sticky top-0 z-10">
+    <header className="border-b bg-background sticky top-0 z-10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="mx-auto max-w-[1000px] p-4">
         {title ? (
           <div className="flex items-center justify-between min-h-9">
