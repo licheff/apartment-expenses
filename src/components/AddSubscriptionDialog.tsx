@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DatePickerInput } from '@/components/ui/date-picker'
 import {
   Select,
   SelectContent,
@@ -289,11 +290,10 @@ export function AddSubscriptionDialog({
                   ))}
                 </SelectContent>
               </Select>
-              <Input
-                type="date"
-                className="flex-1"
+              <DatePickerInput
                 value={startDate}
-                onChange={e => setStartDate(e.target.value)}
+                onChange={setStartDate}
+                className="flex-1"
               />
             </div>
 

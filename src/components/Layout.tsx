@@ -12,8 +12,8 @@ export function Layout({ signOut, theme, onThemeChange }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar signOut={signOut} theme={theme} onThemeChange={onThemeChange} />
-      {/* sm:pl-[220px] offsets the fixed sidebar on desktop; pb-16 clears the mobile tab bar */}
-      <div className="sm:pl-[220px] pb-16 sm:pb-0">
+      {/* sm:pl-[220px] offsets the fixed sidebar on desktop; pb-[70px] clears the taller mobile tab bar */}
+      <div className="sm:pl-[220px] pb-[70px] sm:pb-0">
         <Outlet />
       </div>
     </div>

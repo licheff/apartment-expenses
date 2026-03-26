@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -146,25 +147,31 @@ export function ManageCategoriesDialog({
                                 <CalendarClock className="h-3.5 w-3.5" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent align="end" className="w-56 space-y-3">
-                              <div className="space-y-1.5">
-                                <Label className="text-xs">Дата на изтичане</Label>
-                                <Input
-                                  type="date"
-                                  value={cat.end_date ?? ''}
-                                  onChange={e => onUpdateEndDate(cat.id, e.target.value || null)}
-                                  className="text-sm"
-                                />
-                              </div>
+                            <PopoverContent align="end" className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={cat.end_date ? new Date(cat.end_date + 'T00:00:00') : undefined}
+                                onSelect={date => {
+                                  if (!date) return
+                                  const y = date.getFullYear()
+                                  const m = String(date.getMonth() + 1).padStart(2, '0')
+                                  const d = String(date.getDate()).padStart(2, '0')
+                                  onUpdateEndDate(cat.id, `${y}-${m}-${d}`)
+                                }}
+                                defaultMonth={cat.end_date ? new Date(cat.end_date + 'T00:00:00') : undefined}
+                                initialFocus
+                              />
                               {cat.end_date && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="w-full text-xs text-muted-foreground"
-                                  onClick={() => onUpdateEndDate(cat.id, null)}
-                                >
-                                  Премахни датата
-                                </Button>
+                                <div className="border-t p-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full text-xs text-muted-foreground"
+                                    onClick={() => onUpdateEndDate(cat.id, null)}
+                                  >
+                                    Премахни датата
+                                  </Button>
+                                </div>
                               )}
                             </PopoverContent>
                           </Popover>

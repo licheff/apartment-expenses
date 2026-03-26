@@ -110,7 +110,7 @@ export function Sidebar({ signOut, theme, onThemeChange }: SidebarProps) {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
+                'flex-1 flex flex-col items-center gap-1 pt-2.5 pb-4 text-xs transition-colors',
                 isActive ? 'text-primary' : 'text-muted-foreground',
               )
             }
