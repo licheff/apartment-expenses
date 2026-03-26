@@ -102,7 +102,7 @@ export function Sidebar({ signOut, theme, onThemeChange }: SidebarProps) {
       </aside>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-background border-t flex">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-background border-t flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {navItems.map(item => (
           <NavLink
             key={item.to}
