@@ -60,6 +60,15 @@ export function useApartments() {
     return { error }
   }
 
+  const updateCategoryEndDate = async (categoryId: string, endDate: string | null) => {
+    const { error } = await supabase
+      .from('categories')
+      .update({ end_date: endDate })
+      .eq('id', categoryId)
+    if (!error) await fetchData()
+    return { error }
+  }
+
   const updateRentAmount = async (apartmentId: string, rentAmount: number | null) => {
     const { error } = await supabase
       .from('apartments')
@@ -71,6 +80,6 @@ export function useApartments() {
 
   return {
     apartments, categories, loading, refetch: fetchData,
-    addCategory, deleteCategory, toggleCategoryPaidByMe, updateRentAmount,
+    addCategory, deleteCategory, toggleCategoryPaidByMe, updateCategoryEndDate, updateRentAmount,
   }
 }

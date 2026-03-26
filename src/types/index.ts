@@ -11,6 +11,7 @@ export interface Category {
   name: string
   sort_order: number
   paid_by_me: boolean
+  end_date: string | null
   created_at: string
 }
 

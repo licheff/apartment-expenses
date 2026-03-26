@@ -11,7 +11,9 @@ import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { usePaymentSources } from '@/hooks/usePaymentSources'
 import { useSubscriptionPriceChanges } from '@/hooks/useSubscriptionPriceChanges'
 import { SpendingTrendChart } from '@/components/SpendingTrendChart'
+import { ExpiringServicesSection } from '@/components/ExpiringServicesSection'
 import { useOverviewStats } from '@/hooks/useOverviewStats'
+import { useExpiringServices } from '@/hooks/useExpiringServices'
 import type { Subscription, CreateSubscriptionInput } from '@/types'
 import {
   daysUntilNextPayment,
@@ -31,6 +33,7 @@ export function OverviewPage() {
     loading: overviewLoading,
   } = useOverviewStats()
   const { paymentSources } = usePaymentSources()
+  const { services: expiringServices } = useExpiringServices()
 
   const [editOpen, setEditOpen] = useState(false)
   const [editingSub, setEditingSub] = useState<Subscription | null>(null)
@@ -169,14 +172,19 @@ export function OverviewPage() {
         </div>
       ) : null}
 
-      {/* Spending trend */}
+      {/* Spending trend + Expiring services */}
       {overviewLoading || subscriptionsLoading ? (
         <Skeleton className="h-[280px] rounded-xl" />
       ) : (
-        <SpendingTrendChart
-          monthlyUtilityTotals={monthlyUtilityTotals}
-          monthlySubscriptionTotals={monthlySubscriptionTotals}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:col-span-2">
+            <SpendingTrendChart
+              monthlyUtilityTotals={monthlyUtilityTotals}
+              monthlySubscriptionTotals={monthlySubscriptionTotals}
+            />
+          </div>
+          <ExpiringServicesSection services={expiringServices} />
+        </div>
       )}
 
       {/* Quick link to Expenses */}

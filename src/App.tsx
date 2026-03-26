@@ -80,7 +80,7 @@ function App() {
 function AuthenticatedApp() {
   const {
     apartments, categories, loading: aptsLoading,
-    addCategory, deleteCategory, toggleCategoryPaidByMe, updateRentAmount,
+    addCategory, deleteCategory, toggleCategoryPaidByMe, updateCategoryEndDate, updateRentAmount,
   } = useApartments()
   const [selectedApartmentId, setSelectedApartmentId] = useState('')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -463,6 +463,7 @@ function AuthenticatedApp() {
         onAdd={addCategory}
         onDelete={deleteCategory}
         onTogglePaidByMe={toggleCategoryPaidByMe}
+        onUpdateEndDate={updateCategoryEndDate}
         onUpdateRentAmount={updateRentAmount}
       />
     </div>

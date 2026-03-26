@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, CalendarClock } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,7 +23,26 @@ interface ManageCategoriesDialogProps {
   onAdd: (apartmentId: string, name: string) => Promise<{ error: unknown }>
   onDelete: (categoryId: string) => Promise<{ error: unknown }>
   onTogglePaidByMe: (categoryId: string, paidByMe: boolean) => Promise<{ error: unknown }>
+  onUpdateEndDate: (categoryId: string, endDate: string | null) => Promise<{ error: unknown }>
   onUpdateRentAmount: (apartmentId: string, rentAmount: number | null) => Promise<{ error: unknown }>
+}
+
+function getEndDateStatus(endDate: string | null): 'none' | 'ok' | 'soon' | 'expired' {
+  if (!endDate) return 'none'
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const expiry = new Date(endDate)
+  const diffDays = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays < 0) return 'expired'
+  if (diffDays <= 30) return 'soon'
+  return 'ok'
+}
+
+const endDateIconClass: Record<ReturnType<typeof getEndDateStatus>, string> = {
+  none: 'text-muted-foreground/40 hover:text-muted-foreground',
+  ok: 'text-muted-foreground hover:text-foreground',
+  soon: 'text-amber-500 hover:text-amber-600',
+  expired: 'text-destructive hover:text-destructive/80',
 }
 
 export function ManageCategoriesDialog({
@@ -33,6 +53,7 @@ export function ManageCategoriesDialog({
   onAdd,
   onDelete,
   onTogglePaidByMe,
+  onUpdateEndDate,
   onUpdateRentAmount,
 }: ManageCategoriesDialogProps) {
   const [newName, setNewName] = useState('')
@@ -91,39 +112,77 @@ export function ManageCategoriesDialog({
               <TabsContent key={apt.id} value={apt.id} className="space-y-4">
                 {/* Existing categories */}
                 <div className="space-y-2">
-                  {aptCategories.map(cat => (
-                    <div
-                      key={cat.id}
-                      className="flex items-center justify-between rounded-md border px-3 py-2"
-                    >
-                      <span className="text-sm">{cat.name}</span>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5">
-                          <Checkbox
-                            id={`paid-${cat.id}`}
-                            checked={cat.paid_by_me}
-                            onCheckedChange={v => onTogglePaidByMe(cat.id, v === true)}
-                          />
-                          <Label
-                            htmlFor={`paid-${cat.id}`}
-                            className="text-xs text-muted-foreground cursor-pointer"
+                  {aptCategories.map(cat => {
+                    const status = getEndDateStatus(cat.end_date)
+                    return (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between rounded-md border px-3 py-2"
+                      >
+                        <span className="text-sm">{cat.name}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                            <Checkbox
+                              id={`paid-${cat.id}`}
+                              checked={cat.paid_by_me}
+                              onCheckedChange={v => onTogglePaidByMe(cat.id, v === true)}
+                            />
+                            <Label
+                              htmlFor={`paid-${cat.id}`}
+                              className="text-xs text-muted-foreground cursor-pointer"
+                            >
+                              Плащам аз
+                            </Label>
+                          </div>
+
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`h-7 w-7 ${endDateIconClass[status]}`}
+                                title={cat.end_date ? `Изтича: ${cat.end_date}` : 'Задай дата на изтичане'}
+                              >
+                                <CalendarClock className="h-3.5 w-3.5" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="end" className="w-56 space-y-3">
+                              <div className="space-y-1.5">
+                                <Label className="text-xs">Дата на изтичане</Label>
+                                <Input
+                                  type="date"
+                                  value={cat.end_date ?? ''}
+                                  onChange={e => onUpdateEndDate(cat.id, e.target.value || null)}
+                                  className="text-sm"
+                                />
+                              </div>
+                              {cat.end_date && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full text-xs text-muted-foreground"
+                                  onClick={() => onUpdateEndDate(cat.id, null)}
+                                >
+                                  Премахни датата
+                                </Button>
+                              )}
+                            </PopoverContent>
+                          </Popover>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={() => handleDelete(cat.id)}
+                            disabled={deleting === cat.id}
+                            title="Изтрий категорията"
                           >
-                            Плащам аз
-                          </Label>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(cat.id)}
-                          disabled={deleting === cat.id}
-                          title="Изтрий категорията"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                   {aptCategories.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
                       Няма категории
