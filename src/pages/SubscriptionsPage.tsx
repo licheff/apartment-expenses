@@ -429,11 +429,12 @@ export function SubscriptionsPage() {
         </Tabs>
       )}
 
-      {/* Mobile-only sticky add button — positioned above the bottom tab bar (bottom-16) */}
+      {/* Mobile-only sticky add button — positioned above the bottom tab bar + safe area */}
       <div
-        className={`fixed bottom-16 left-0 right-0 z-10 p-4 sm:hidden transition-transform duration-200 ${
+        className={`fixed left-0 right-0 z-10 p-4 sm:hidden transition-transform duration-200 ${
           showMobileAdd ? 'translate-y-0' : 'translate-y-full'
         }`}
+        style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
       >
         <Button className="w-full" size="lg" onClick={handleOpenAdd}>
           <Plus className="h-5 w-5" />
