@@ -1,14 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Receipt, CreditCard, Sun, Moon, Monitor, LogOut } from 'lucide-react'
+import { LayoutDashboard, Receipt, CreditCard, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { Theme } from '@/hooks/useTheme'
+import { ThemeToggleBulb } from '@licheff/dark-mode-switch'
 
 const navItems = [
   { to: '/', label: 'Преглед', icon: LayoutDashboard, end: true },
@@ -16,20 +10,11 @@ const navItems = [
   { to: '/subscriptions', label: 'Абонаменти', icon: CreditCard, end: false },
 ]
 
-const themeOptions: { value: Theme; label: string; icon: typeof Sun }[] = [
-  { value: 'light', label: 'Светла', icon: Sun },
-  { value: 'dark', label: 'Тъмна', icon: Moon },
-  { value: 'system', label: 'Системна', icon: Monitor },
-]
-
 interface SidebarProps {
   signOut: () => Promise<void>
-  theme: Theme
-  onThemeChange: (t: Theme) => void
 }
 
-export function Sidebar({ signOut, theme, onThemeChange }: SidebarProps) {
-  const ThemeIcon = themeOptions.find(t => t.value === theme)?.icon ?? Monitor
+export function Sidebar({ signOut }: SidebarProps) {
 
   return (
     <>
@@ -64,30 +49,7 @@ export function Sidebar({ signOut, theme, onThemeChange }: SidebarProps) {
 
         {/* Bottom: theme toggle + logout */}
         <div className="px-3 py-4 border-t border-sidebar-border flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                title="Тема"
-                className="text-sidebar-foreground hover:bg-primary/4 hover:text-sidebar-accent-foreground"
-              >
-                <ThemeIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start">
-              {themeOptions.map(opt => (
-                <DropdownMenuItem
-                  key={opt.value}
-                  onClick={() => onThemeChange(opt.value)}
-                  className={theme === opt.value ? 'bg-accent' : ''}
-                >
-                  <opt.icon className="h-4 w-4 mr-2" />
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ThemeToggleBulb className="text-sidebar-foreground hover:bg-primary/4 hover:text-sidebar-accent-foreground" />
 
           <Button
             variant="ghost"

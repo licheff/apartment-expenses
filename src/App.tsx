@@ -35,14 +35,12 @@ import { useExpenseSummary } from '@/hooks/useExpenseSummary'
 import { useAvailableYears } from '@/hooks/useAvailableYears'
 import { useRentPayments } from '@/hooks/useRentPayments'
 import { useYearlyExpenses } from '@/hooks/useYearlyExpenses'
-import { useTheme } from '@/hooks/useTheme'
 import { exportToCsv } from '@/lib/csv-exporter'
 import { supabase } from '@/lib/supabase'
 import type { MonthRow } from '@/types'
 
 function App() {
   const { session, loading: authLoading, signIn, signOut } = useAuth()
-  const { theme, setTheme } = useTheme()
 
   if (authLoading) {
     return (
@@ -64,7 +62,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route element={<Layout signOut={signOut} theme={theme} onThemeChange={setTheme} />}>
+        <Route element={<Layout signOut={signOut} />}>
           <Route index element={<OverviewPage />} />
           <Route path="/expenses" element={<AuthenticatedApp />} />
           <Route path="/subscriptions" element={<SubscriptionsPage />} />
