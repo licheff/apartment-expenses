@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Receipt, CreditCard, LogOut } from 'lucide-react'
+import { LayoutDashboard, Receipt, CreditCard, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { ThemeToggleBulb } from '@licheff/dark-mode-switch'
 
 const navItems = [
@@ -10,12 +9,12 @@ const navItems = [
   { to: '/subscriptions', label: 'Абонаменти', icon: CreditCard, end: false },
 ]
 
-interface SidebarProps {
-  signOut: () => Promise<void>
-}
+const mobileNavItems = [
+  ...navItems,
+  { to: '/settings', label: 'Настройки', icon: Settings, end: false },
+]
 
-export function Sidebar({ signOut }: SidebarProps) {
-
+export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar — fixed, full height */}
@@ -47,25 +46,29 @@ export function Sidebar({ signOut }: SidebarProps) {
           ))}
         </nav>
 
-        {/* Bottom: theme toggle + logout */}
+        {/* Bottom utility bar: theme toggle + settings icon */}
         <div className="px-3 py-4 border-t border-sidebar-border flex items-center gap-1">
           <ThemeToggleBulb className="text-sidebar-foreground hover:bg-primary/4 hover:text-sidebar-accent-foreground" />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={signOut}
-            title="Изход"
-            className="ml-auto text-sidebar-foreground hover:bg-primary/4 hover:text-sidebar-accent-foreground"
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              cn(
+                'ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors',
+                isActive
+                  ? 'bg-primary/8 text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground hover:bg-primary/4 hover:text-sidebar-accent-foreground',
+              )
+            }
+            title="Настройки"
           >
-            <LogOut className="h-4 w-4" />
-          </Button>
+            <Settings className="h-4 w-4" />
+          </NavLink>
         </div>
       </aside>
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-background border-t flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        {navItems.map(item => (
+        {mobileNavItems.map(item => (
           <NavLink
             key={item.to}
             to={item.to}

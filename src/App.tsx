@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 import { OverviewPage } from '@/pages/OverviewPage'
 import { SubscriptionsPage } from '@/pages/SubscriptionsPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 
 import { useApartments } from '@/hooks/useApartments'
 import { useAuth } from '@/hooks/useAuth'
@@ -62,10 +63,11 @@ function App() {
   return (
     <>
       <Routes>
-        <Route element={<Layout signOut={signOut} />}>
+        <Route element={<Layout />}>
           <Route index element={<OverviewPage />} />
           <Route path="/expenses" element={<AuthenticatedApp />} />
           <Route path="/subscriptions" element={<SubscriptionsPage />} />
+          <Route path="/settings" element={<SettingsPage signOut={signOut} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
