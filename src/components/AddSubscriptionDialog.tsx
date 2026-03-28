@@ -319,6 +319,7 @@ export function AddSubscriptionDialog({
         </DialogBody>
 
         <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Отказ</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!canSave || saving}>
             {saving ? 'Запазване...' : 'Запази'}
           </Button>
