@@ -6,9 +6,9 @@
 
 1. Always `p-0 gap-0 overflow-hidden` on `DialogContent` — never let Radix/shadcn add default padding
 2. Use `<DialogHeader>`, `<DialogBody>`, `<DialogFooter>` from `@/components/ui/dialog` — styles are baked in
-3. `DialogHeader` renders: `px-6 pt-6 pb-4 border-b` — don't repeat these on `DialogHeader` itself
+3. `DialogHeader` renders: `px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 border-b` (sm: `pt-6`) — accounts for OS status bar on mobile
 4. `DialogBody` renders: `px-6 py-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto`
-5. `DialogFooter` renders: `px-6 py-4 border-t flex items-center gap-2`
+5. `DialogFooter` renders: `px-6 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t flex items-center gap-2` (sm: `py-4`) — accounts for home indicator on mobile
 6. Footer buttons: Cancel (`variant="outline"`) + Save (`flex-1`) on the right
 7. For destructive actions: add a Delete button with `mr-auto` to push it left
 

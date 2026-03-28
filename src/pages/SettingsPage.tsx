@@ -399,7 +399,7 @@ export function SettingsPage({ signOut }: SettingsPageProps) {
                         onChange={e => setNewCategoryName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
                       />
-                      <Button onClick={handleAddCategory} disabled={!newCategoryName.trim()} size="sm">
+                      <Button onClick={handleAddCategory} disabled={!newCategoryName.trim()}>
                         <Plus className="h-4 w-4 mr-1" />
                         Добави
                       </Button>
@@ -475,7 +475,7 @@ export function SettingsPage({ signOut }: SettingsPageProps) {
                 onChange={e => setNewSourceName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddSource()}
               />
-              <Button onClick={handleAddSource} disabled={!newSourceName.trim()} size="sm">
+              <Button onClick={handleAddSource} disabled={!newSourceName.trim()}>
                 <Plus className="h-4 w-4 mr-1" />
                 Добави
               </Button>
