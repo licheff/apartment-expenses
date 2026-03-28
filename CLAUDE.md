@@ -95,7 +95,8 @@ VITE_SUPABASE_ANON_KEY=...
 
 ### UI Patterns
 
-- All CRUD operations happen in modal dialogs; dialog open state is managed in `App.tsx`
+- Most CRUD operations happen in modal dialogs; dialog open state is managed in `App.tsx`
+- Settings (categories, payment sources, logout) live at the `/settings` route — not a dialog
 - `Cmd+A` keyboard shortcut opens the add expense dialog
 - Components in `src/components/ui/` are Radix UI + Tailwind compositions (treated like a local shadcn/ui setup)
 
@@ -109,9 +110,10 @@ Use this to know which files to read before starting any task.
 | Subscriptions | `pages/SubscriptionsPage.tsx`, `components/AddSubscriptionDialog.tsx`, `components/EditSubscriptionDialog.tsx`, `components/SubscriptionCalendar.tsx`, `components/UpcomingPaymentsList.tsx`, `hooks/useSubscriptions.ts`, `hooks/useSubscriptionPriceChanges.ts`, `lib/subscriptions.ts` |
 | Yearly expenses | `components/YearlyExpensesSection.tsx`, `hooks/useYearlyExpenses.ts` |
 | Summary & charts | `components/YearSummaryStrip.tsx`, `components/YearComparisonChart.tsx`, `hooks/useExpenseSummary.ts` |
-| Apartments & categories | `hooks/useApartments.ts`, `components/ManageCategoriesDialog.tsx`, `components/ApartmentTabs.tsx` |
+| Settings page | `pages/SettingsPage.tsx`, `hooks/useApartments.ts`, `hooks/usePaymentSources.ts` |
+| Apartments & categories | `hooks/useApartments.ts`, `components/ApartmentTabs.tsx` |
 | CSV import/export | `components/CsvImportDialog.tsx`, `lib/csv-parser.ts`, `lib/csv-exporter.ts` |
-| Payment sources | `hooks/usePaymentSources.ts`, `components/ManagePaymentSourcesDialog.tsx` |
+| Payment sources | `hooks/usePaymentSources.ts` |
 | Currency & amounts | `lib/constants.ts`, `components/CurrencyToggle.tsx`, `components/MathOperatorButtons.tsx` |
 | Auth | `hooks/useAuth.ts`, `components/LoginPage.tsx` |
 | Year navigation | `components/YearSelector.tsx` |
