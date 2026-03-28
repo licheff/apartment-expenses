@@ -99,7 +99,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-[max(1rem,env(safe-area-inset-top))] right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 sm:top-4"
           >
             <XIcon />
             <span className="sr-only">Close</span>
@@ -139,7 +139,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "px-6 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t flex items-center gap-2 shrink-0 sm:py-4",
+        "px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t flex items-center gap-2 shrink-0 sm:py-4",
         className
       )}
       {...props}
