@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ArrowDownUp, Upload, Download, Settings, Plus } from 'lucide-react'
+import { ArrowDownUp, Upload, Download, Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
 import { Layout } from '@/components/Layout'
@@ -21,7 +21,6 @@ import { ExpenseTable } from '@/components/ExpenseTable'
 import { AddExpenseDialog } from '@/components/AddExpenseDialog'
 import { EditExpenseDialog } from '@/components/EditExpenseDialog'
 import { CsvImportDialog } from '@/components/CsvImportDialog'
-import { ManageCategoriesDialog } from '@/components/ManageCategoriesDialog'
 import { YearlyExpensesSection } from '@/components/YearlyExpensesSection'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -80,7 +79,6 @@ function App() {
 function AuthenticatedApp() {
   const {
     apartments, categories, loading: aptsLoading,
-    addCategory, deleteCategory, toggleCategoryPaidByMe, updateCategoryEndDate, updateRentAmount,
   } = useApartments()
   const [selectedApartmentId, setSelectedApartmentId] = useState('')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -91,7 +89,6 @@ function AuthenticatedApp() {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [editMonth, setEditMonth] = useState<number | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const [categoriesDialogOpen, setCategoriesDialogOpen] = useState(false)
 
   // Set default apartment once loaded
   if (!selectedApartmentId && apartments.length > 0) {
@@ -264,14 +261,14 @@ function AuthenticatedApp() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.metaKey && e.key === 'a' && !addDialogOpen && !editDialogOpen && !importDialogOpen && !categoriesDialogOpen) {
+      if (e.metaKey && e.key === 'a' && !addDialogOpen && !editDialogOpen && !importDialogOpen) {
         e.preventDefault()
         handleOpenAdd()
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen, categoriesDialogOpen])
+  }, [handleOpenAdd, addDialogOpen, editDialogOpen, importDialogOpen])
 
   // Hide mobile add button on scroll down, show on scroll up or after idle
   const [showMobileAdd, setShowMobileAdd] = useState(true)
@@ -344,9 +341,6 @@ function AuthenticatedApp() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button variant="ghost" size="icon" onClick={() => setCategoriesDialogOpen(true)} title="Категории">
-                <Settings className="h-4 w-4" />
-              </Button>
             </div>
             <Button
               size="sm"
@@ -454,18 +448,6 @@ function AuthenticatedApp() {
         apartments={apartments}
         categories={categories}
         onImport={handleImport}
-      />
-
-      <ManageCategoriesDialog
-        open={categoriesDialogOpen}
-        onOpenChange={setCategoriesDialogOpen}
-        apartments={apartments}
-        categories={categories}
-        onAdd={addCategory}
-        onDelete={deleteCategory}
-        onTogglePaidByMe={toggleCategoryPaidByMe}
-        onUpdateEndDate={updateCategoryEndDate}
-        onUpdateRentAmount={updateRentAmount}
       />
     </div>
   )

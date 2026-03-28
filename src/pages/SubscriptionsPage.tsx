@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, CreditCard, Plus } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, Plus } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,7 +17,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AddSubscriptionDialog } from '@/components/AddSubscriptionDialog'
 import { EditSubscriptionDialog } from '@/components/EditSubscriptionDialog'
-import { ManagePaymentSourcesDialog } from '@/components/ManagePaymentSourcesDialog'
 import { SubscriptionCalendar } from '@/components/SubscriptionCalendar'
 import { DaysBadge } from '@/components/DaysBadge'
 import { TableContainer } from '@/components/TableContainer'
@@ -246,13 +245,11 @@ export function SubscriptionsPage() {
     remove,
   } = useSubscriptions()
 
-  const { paymentSources, create: createSource, remove: removeSource } = usePaymentSources()
+  const { paymentSources } = usePaymentSources()
 
   const [addOpen, setAddOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [editingSub, setEditingSub] = useState<Subscription | null>(null)
-  const [sourcesOpen, setSourcesOpen] = useState(false)
-
   const {
     priceChanges,
     loading: priceChangesLoading,
@@ -264,14 +261,14 @@ export function SubscriptionsPage() {
   // ⌘A keyboard shortcut
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.key === 'a' && !addOpen && !editOpen && !sourcesOpen) {
+      if (e.metaKey && e.key === 'a' && !addOpen && !editOpen) {
         e.preventDefault()
         handleOpenAdd()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleOpenAdd, addOpen, editOpen, sourcesOpen])
+  }, [handleOpenAdd, addOpen, editOpen])
 
   // Hide mobile add button on scroll down, show on scroll up or after idle
   const [showMobileAdd, setShowMobileAdd] = useState(true)
@@ -352,14 +349,6 @@ export function SubscriptionsPage() {
       title="Абонаменти"
       actions={
         <>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSourcesOpen(true)}
-          >
-            <CreditCard className="h-4 w-4 mr-1.5" />
-            Плащания
-          </Button>
           <Button size="sm" className="hidden sm:inline-flex" onClick={handleOpenAdd}>
             Добави
             <kbd className="ml-0 text-[11px] opacity-60 font-sans pt-1">⌘A</kbd>
@@ -462,13 +451,6 @@ export function SubscriptionsPage() {
         onRecordPriceChange={handleRecordPriceChange}
       />
 
-      <ManagePaymentSourcesDialog
-        open={sourcesOpen}
-        onOpenChange={setSourcesOpen}
-        paymentSources={paymentSources}
-        onCreate={createSource}
-        onDelete={removeSource}
-      />
     </div>
     </>
   )

@@ -107,7 +107,7 @@ export function SettingsPage({ signOut }: SettingsPageProps) {
       <main className="mx-auto px-4 py-6 space-y-8 max-w-[600px]">
         {/* Section 1: Expenses by location */}
         <section className="space-y-4">
-          <h1 className="text-base font-semibold">Разходи по локация</h1>
+          <h2 className="text-lg font-semibold">Разходи по локация</h2>
 
           <Tabs value={activeTab} onValueChange={tab => { setActiveTab(tab); setNewCategoryName('') }}>
             <TabsList className="w-full">
@@ -261,7 +261,7 @@ export function SettingsPage({ signOut }: SettingsPageProps) {
 
         {/* Section 2: Payment methods */}
         <section className="space-y-4">
-          <h1 className="text-base font-semibold">Начини на плащане</h1>
+          <h2 className="text-lg font-semibold">Начини на плащане</h2>
 
           <div className="space-y-2">
             {paymentSources.map(source => (
@@ -307,7 +307,7 @@ export function SettingsPage({ signOut }: SettingsPageProps) {
 
         {/* Section 3: Account */}
         <section className="space-y-4">
-          <h1 className="text-base font-semibold">Акаунт</h1>
+          <h2 className="text-lg font-semibold">Акаунт</h2>
           <Button variant="destructive" onClick={signOut} className="gap-2 w-full justify-center">
             <LogOut className="h-4 w-4" />
             Изход
