@@ -427,7 +427,7 @@ export function SubscriptionsPage() {
       >
         <Button className="w-full" size="lg" onClick={handleOpenAdd}>
           <Plus className="h-5 w-5" />
-          Добави
+          Добави абонамент
         </Button>
       </div>
 
