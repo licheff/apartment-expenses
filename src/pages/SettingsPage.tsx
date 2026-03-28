@@ -122,6 +122,7 @@ function RentDialog({ open, onClose, onSave }: RentDialogProps) {
     if (raw === null) return
     const eur = currency === 'BGN' ? convertBgnToEur(raw) : raw
     await onSave(eur)
+    onClose()
   }
 
   const currencySymbol = currency === 'EUR' ? '€' : 'лв.'
